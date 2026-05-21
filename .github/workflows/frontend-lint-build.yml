@@ -1,0 +1,38 @@
+name: Frontend Lint & Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/web/**'
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: apps/web
+
+      - name: TypeScript check
+        run: pnpm typecheck
+        working-directory: apps/web
+
+      - name: Build
+        run: pnpm build
+        working-directory: apps/web

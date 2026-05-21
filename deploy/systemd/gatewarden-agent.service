@@ -1,0 +1,22 @@
+[Unit]
+Description=Gatewarden Agent
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/gatewarden-agent \
+  --server https://your-gatewarden-instance.example.com \
+  --api-key YOUR_API_KEY \
+  --interval 60s
+
+Restart=on-failure
+RestartSec=10
+
+# Security hardening
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

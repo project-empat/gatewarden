@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: gatewarden
+      POSTGRES_PASSWORD: gatewarden
+      POSTGRES_DB: gatewarden
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gatewarden"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ../apps/api
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      GATEWARDEN_PORT: "8080"
+      GATEWARDEN_DB_DSN: "postgres://gatewarden:gatewarden@postgres:5432/gatewarden?sslmode=disable"
+      GATEWARDEN_JWT_SECRET: "change-me-in-production"
+      GATEWARDEN_LOG_LEVEL: "debug"
+      GATEWARDEN_ALLOWED_ORIGINS: "*"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ../migrations:/migrations
+
+  web:
+    build:
+      context: ../apps/web
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

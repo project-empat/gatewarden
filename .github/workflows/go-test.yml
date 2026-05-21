@@ -1,0 +1,55 @@
+name: Go Test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/api/**'
+      - 'agent/**'
+      - 'modules/**'
+      - 'go.work'
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: true
+
+      - name: Install tools
+        run: |
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
+      - name: Tidy modules
+        run: |
+          cd apps/api && go mod tidy
+          cd ../../agent && go mod tidy
+          cd ../modules/core && go mod tidy
+          cd ../enterprise && go mod tidy
+
+      - name: Build API
+        run: cd apps/api && go build ./cmd/api
+
+      - name: Build Agent
+        run: cd agent && go build ./cmd/agent
+
+      - name: Build Enterprise
+        run: cd apps/api && go build -tags enterprise ./cmd/api
+
+      - name: Test API
+        run: cd apps/api && go test ./... -v -count=1
+
+      - name: Test Agent
+        run: cd agent && go test ./... -v -count=1
+
+      - name: Lint API
+        run: cd apps/api && golangci-lint run ./... --timeout=5m
+
+      - name: Lint Agent
+        run: cd agent && golangci-lint run ./... --timeout=5m
