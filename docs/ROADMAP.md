@@ -16,35 +16,39 @@
 - [x] Cloudflare Tunnel status reporting
 - [x] journald/auth log parsing
 - [x] Outbound-only agent connection to API
+- [x] Agent graceful shutdown
+- [x] Agent reconnection on network loss
 
 ### Backend
 - [x] Golang monolith (Chi router)
 - [x] PostgreSQL database (sqlc + Goose migrations)
 - [x] Agent registration and authentication
 - [x] Agent heartbeat / status ingestion
-- [x] SSE or WebSocket for real-time updates
+- [x] SSE for real-time updates
 - [x] Environment-based config
 - [x] Structured logging
-- [x] Initial schema: nodes, incidents, events
+- [x] Initial schema: nodes, incidents, events, policies, settings
 
 ### Frontend
-- [ ] Vite + React + TypeScript scaffold
-- [ ] TanStack Router + TanStack Query
-- [ ] TailwindCSS + daisyUI + lucide icons
-- [ ] Zustand state management
-- [ ] Dark mode
-- [ ] Login page
-- [ ] Dashboard page
-- [ ] Nodes page
-- [ ] Incidents page
-- [ ] Policies page
-- [ ] Settings page
+- [x] Vite + React + TypeScript scaffold
+- [x] TanStack Router + TanStack Query
+- [x] TailwindCSS + daisyUI + lucide icons
+- [x] Zustand state management
+- [x] Dark mode
+- [x] Login page
+- [x] Dashboard page
+- [x] Nodes list + detail pages
+- [x] Incidents list + detail pages
+- [x] Policies page (list + create/edit modal)
+- [x] Settings page
+- [x] Error boundaries
+- [x] Loading/empty states across pages
 
 ### Deployment
-- [ ] Docker Compose (API + DB + optional web proxy)
-- [ ] `install.sh` one-liner for agent
-- [ ] systemd service for agent
-- [ ] Makefile targets for dev, build, test
+- [x] Docker Compose (API + DB + web proxy)
+- [x] `install.sh` one-liner for agent (supports amd64/arm64)
+- [x] systemd service for agent
+- [x] Makefile targets for dev, build, test
 
 ## Phase 1: Secure Connectivity
 

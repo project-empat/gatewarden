@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import { CheckCircle } from 'lucide-react'
 import { api } from '@/api/client'
 
@@ -68,7 +69,11 @@ export function IncidentsPage() {
             }`}
           >
             <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 min-w-0">
+              <Link
+                to="/incidents/$incidentId"
+                params={{ incidentId: inc.id }}
+                className="flex-1 min-w-0 hover:opacity-80 transition-opacity"
+              >
                 <div className="flex items-center gap-2 mb-1">
                   <span className={severityBadge(inc.severity)}>{inc.severity}</span>
                   <span className="text-xs text-base-content/40">
@@ -80,13 +85,16 @@ export function IncidentsPage() {
                 </div>
                 <h3 className="font-semibold">{inc.title}</h3>
                 {inc.message && (
-                  <p className="text-sm text-base-content/60 mt-1">{inc.message}</p>
+                  <p className="text-sm text-base-content/60 mt-1 line-clamp-1">{inc.message}</p>
                 )}
-              </div>
+              </Link>
               {inc.status === 'open' && (
                 <button
-                  className="btn btn-ghost btn-sm text-success"
-                  onClick={() => resolveMutation.mutate(inc.id)}
+                  className="btn btn-ghost btn-sm text-success shrink-0"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    resolveMutation.mutate(inc.id)
+                  }}
                 >
                   <CheckCircle className="w-4 h-4" />
                   Resolve

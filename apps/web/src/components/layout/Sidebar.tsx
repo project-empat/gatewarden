@@ -6,6 +6,7 @@ import {
   Settings,
   LogOut,
   BarChart3,
+  Shield,
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 
@@ -13,6 +14,7 @@ const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: BarChart3 },
   { path: '/nodes', label: 'Nodes', icon: Server },
   { path: '/incidents', label: 'Incidents', icon: AlertTriangle },
+  { path: '/policies', label: 'Policies', icon: Shield },
   { path: '/settings', label: 'Settings', icon: Settings },
 ]
 
@@ -32,7 +34,8 @@ export function Sidebar() {
         <nav className="flex-1 px-3 py-4 space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon
-            const isActive = location.pathname === item.path
+            const isActive = location.pathname === item.path ||
+              (item.path !== '/' && location.pathname.startsWith(item.path))
             return (
               <Link
                 key={item.path}

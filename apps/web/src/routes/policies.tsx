@@ -1,13 +1,14 @@
-import { createRoute, Outlet } from '@tanstack/react-router'
+import { createRoute } from '@tanstack/react-router'
 import { Route as rootRoute } from './__root'
+import { PoliciesPage } from '@/components/pages/PoliciesPage'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 
 export const Route = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/incidents',
+  path: '/policies',
   component: () => (
     <DashboardLayout>
-      <Outlet />
+      <PoliciesPage />
     </DashboardLayout>
   ),
 })

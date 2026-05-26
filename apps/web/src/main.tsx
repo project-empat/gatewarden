@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useAuthStore } from '@/stores/authStore'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { routeTree } from './routeTree.gen'
 import './index.css'
 
@@ -30,7 +31,11 @@ function InnerApp() {
     auth.init()
   }, [])
 
-  return <RouterProvider router={router} context={{ queryClient, auth }} />
+  return (
+    <ErrorBoundary>
+      <RouterProvider router={router} context={{ queryClient, auth }} />
+    </ErrorBoundary>
+  )
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root')!)

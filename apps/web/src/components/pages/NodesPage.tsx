@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import { Server, Wifi, XCircle } from 'lucide-react'
 import { api } from '@/api/client'
 
@@ -34,7 +35,6 @@ export function NodesPage() {
           <h1 className="text-2xl font-bold">Nodes</h1>
           <p className="text-base-content/60 text-sm mt-1">Managed infrastructure nodes</p>
         </div>
-        <button className="btn btn-primary btn-sm">Add Node</button>
       </div>
 
       <div className="overflow-x-auto bg-base-100 rounded-xl border border-base-content/5">
@@ -59,8 +59,19 @@ export function NodesPage() {
               </tr>
             )}
             {nodes?.map((node) => (
-              <tr key={node.id}>
-                <td className="font-medium">{node.name}</td>
+              <tr
+                key={node.id}
+                className="hover:bg-base-200 cursor-pointer transition-colors"
+              >
+                <td className="font-medium">
+                  <Link
+                    to="/nodes/$nodeId"
+                    params={{ nodeId: node.id }}
+                    className="link link-hover"
+                  >
+                    {node.name}
+                  </Link>
+                </td>
                 <td>{node.hostname}</td>
                 <td>{node.ip}</td>
                 <td>{node.os}</td>
@@ -88,6 +99,13 @@ export function NodesPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Bottom load state */}
+      {nodes && nodes.length > 0 && (
+        <p className="text-xs text-center text-base-content/30">
+          {nodes.length} node{nodes.length !== 1 ? 's' : ''} registered
+        </p>
+      )}
     </div>
   )
 }

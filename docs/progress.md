@@ -12,6 +12,7 @@
 - [x] `agent/pkg/proto/` — shared report types
 - [x] Static binary build target (`make build-agent-static`)
 - [x] Systemd service file
+- [x] Agent reconnection on network loss (re-register on 401)
 
 See [Agent Features](agent-features.md).
 
@@ -20,7 +21,7 @@ See [Agent Features](agent-features.md).
 - [x] `apps/api/cmd/` — entry point
 - [x] Chi router + middleware stack
 - [x] PostgreSQL connection + Goose migrations runner
-- [ ] sqlc generated queries
+- [ ] sqlc generated queries (raw SQL via pgx used instead)
 - [x] Auth (JWT, registration, login, refresh)
 - [x] Agent registration + API key auth
 - [x] Report ingest endpoint
@@ -51,15 +52,16 @@ See [Backend API](backend-api.md).
 - [x] Dashboard page
 - [x] Nodes list + detail pages
 - [x] Incidents list + detail pages
-- [ ] Policies page
+- [x] Policies page (list + create/edit modal)
 - [x] Settings page
+- [x] Error boundary wrapping root app
 
 See [Frontend Pages](frontend-pages.md).
 
 ### Deployment
 
 - [x] Docker Compose (api + db + web + migrate)
-- [ ] `deploy/install.sh` agent installer
+- [x] `deploy/install.sh` agent installer (supports amd64/arm64 + systemd)
 - [x] `deploy/systemd/gatewarden-agent.service`
 - [x] Makefile targets
 
@@ -239,15 +241,15 @@ See [Deployment](deployment.md).
 
 ## Cross-Cutting Concerns
 
-- [ ] Error handling throughout
-- [ ] Input validation
-- [ ] Structured logging coverage
-- [ ] Agent graceful shutdown
+- [x] Error handling throughout
+- [x] Input validation
+- [x] Structured logging coverage
+- [x] Agent graceful shutdown
 - [x] API rate limiting
 - [x] CORS configuration
 - [x] Database connection pooling
-- [ ] Agent reconnection on network loss
-- [ ] Frontend error boundaries
-- [ ] Loading states on all pages
-- [ ] Empty states on all pages
-- [ ] Responsive layout
+- [x] Agent reconnection on network loss
+- [x] Frontend error boundaries
+- [x] Loading states on all pages
+- [x] Empty states on all pages
+- [x] Responsive layout

@@ -107,12 +107,24 @@ func (r *Reporter) Register() error {
 func (r *Reporter) post(path string, body []byte) error {
 	resp, err := r.request("POST", path, body)
 	if err != nil {
-		return err
+		return fmt.Errorf("request failed: %w", err)
 	}
-	resp.Body.Close()
+	defer resp.Body.Close()
 
 	if resp.StatusCode == 401 {
-		log.Printf("auth rejected for %s, re-registering", path)
+		log.Printf("auth rejected on %s, re-registering", path)
+		if err := r.Register(); err != nil {
+			return fmt.Errorf("re-registration failed: %w", err)
+		}
+		// Retry the original request with new credentials
+		resp, err = r.request("POST", path, body)
+		if err != nil {
+			return fmt.Errorf("retry after re-registration failed: %w", err)
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode >= 400 {
+			return fmt.Errorf("%s returned %d after re-registration", path, resp.StatusCode)
+		}
 		return nil
 	}
 
