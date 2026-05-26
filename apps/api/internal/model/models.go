@@ -33,6 +33,32 @@ type Incident struct {
 	ResolvedAt *time.Time `json:"resolved_at,omitempty"`
 }
 
+type Agent struct {
+	ID            string    `json:"id"`
+	NodeID        string    `json:"node_id"`
+	Version       string    `json:"version"`
+	LastHeartbeat time.Time `json:"last_heartbeat"`
+	CreatedAt     time.Time `json:"created_at"`
+}
+
+type AgentReport struct {
+	ID         int64     `json:"id"`
+	AgentID    string    `json:"agent_id"`
+	NodeID     string    `json:"node_id"`
+	Report     string    `json:"report"`
+	ReceivedAt time.Time `json:"received_at"`
+}
+
+type RegisterRequest struct {
+	Hostname string `json:"hostname"`
+	Version  string `json:"version"`
+}
+
+type RegisterResponse struct {
+	NodeID string `json:"node_id"`
+	APIKey string `json:"api_key"`
+}
+
 type Event struct {
 	ID        string    `json:"id"`
 	NodeID    string    `json:"node_id"`

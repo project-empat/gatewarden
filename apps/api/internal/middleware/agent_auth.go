@@ -8,12 +8,9 @@ import (
 	"github.com/gatewarden/api/internal/service"
 )
 
-type contextKey string
-
-const UserIDKey contextKey = "user_id"
-const NodeIDKey contextKey = "node_id"
-
-func Auth(svc *service.AuthService) func(http.Handler) http.Handler {
+// AgentAuth validates the agent API key from the Authorization header.
+// It injects the node_id into the request context.
+func AgentAuth(svc *service.AgentService) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			header := r.Header.Get("Authorization")
@@ -22,19 +19,19 @@ func Auth(svc *service.AuthService) func(http.Handler) http.Handler {
 				return
 			}
 
-			token := strings.TrimPrefix(header, "Bearer ")
-			if token == header {
+			key := strings.TrimPrefix(header, "Bearer ")
+			if key == header {
 				http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
 				return
 			}
 
-			userID, err := svc.ValidateToken(token)
+			nodeID, err := svc.ValidateAPIKey(r.Context(), key)
 			if err != nil {
 				http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), UserIDKey, userID)
+			ctx := context.WithValue(r.Context(), NodeIDKey, nodeID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

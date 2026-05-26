@@ -18,14 +18,14 @@
 - [x] Outbound-only agent connection to API
 
 ### Backend
-- [ ] Golang monolith (Chi router)
-- [ ] PostgreSQL database (sqlc + Goose migrations)
-- [ ] Agent registration and authentication
-- [ ] Agent heartbeat / status ingestion
-- [ ] SSE or WebSocket for real-time updates
-- [ ] Environment-based config
-- [ ] Structured logging
-- [ ] Initial schema: nodes, incidents, events
+- [x] Golang monolith (Chi router)
+- [x] PostgreSQL database (sqlc + Goose migrations)
+- [x] Agent registration and authentication
+- [x] Agent heartbeat / status ingestion
+- [x] SSE or WebSocket for real-time updates
+- [x] Environment-based config
+- [x] Structured logging
+- [x] Initial schema: nodes, incidents, events
 
 ### Frontend
 - [ ] Vite + React + TypeScript scaffold

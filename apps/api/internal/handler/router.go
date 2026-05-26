@@ -30,14 +30,22 @@ func NewRouter(svc *service.Service, log *zap.SugaredLogger, cfg *config.Config,
 	}))
 
 	authHandler := NewAuthHandler(svc.Auth)
+	agentHandler := NewAgentHandler(svc.Agent)
 	nodeHandler := NewNodeHandler(svc.Node)
 	incidentHandler := NewIncidentHandler(db)
 	settingsHandler := NewSettingsHandler()
 	sseHandler := NewSSEHandler(svc.Event)
 
 	r.Route("/api", func(r chi.Router) {
+		// Public agent endpoints (API key auth)
+		r.Post("/agent/register", agentHandler.Register)
+		r.With(middleware.AgentAuth(svc.Agent)).Post("/agent/report", agentHandler.Report)
+		r.With(middleware.AgentAuth(svc.Agent)).Post("/agent/heartbeat", agentHandler.Heartbeat)
+
+		// User auth
 		r.Post("/auth/login", authHandler.Login)
 
+		// Protected user endpoints (JWT auth)
 		r.Group(func(r chi.Router) {
 			r.Use(middleware.Auth(svc.Auth))
 

@@ -17,20 +17,20 @@ See [Agent Features](agent-features.md).
 
 ### Backend Scaffold
 
-- [ ] `apps/api/cmd/` — entry point
-- [ ] Chi router + middleware stack
-- [ ] PostgreSQL connection + Goose migrations runner
+- [x] `apps/api/cmd/` — entry point
+- [x] Chi router + middleware stack
+- [x] PostgreSQL connection + Goose migrations runner
 - [ ] sqlc generated queries
-- [ ] Auth (JWT, registration, login, refresh)
-- [ ] Agent registration + API key auth
-- [ ] Report ingest endpoint
-- [ ] Node CRUD
-- [ ] Incident CRUD
-- [ ] Event feed + SSE streaming
+- [x] Auth (JWT, registration, login, refresh)
+- [x] Agent registration + API key auth
+- [x] Report ingest endpoint
+- [x] Node CRUD
+- [x] Incident CRUD
+- [x] Event feed + SSE streaming
 - [ ] Policy CRUD (MVP)
-- [ ] Settings CRUD
-- [ ] Environment-based config
-- [ ] Structured logging
+- [x] Settings CRUD
+- [x] Environment-based config
+- [x] Structured logging
 
 See [Backend API](backend-api.md).
 
