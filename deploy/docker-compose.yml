@@ -15,6 +15,20 @@ services:
       timeout: 5s
       retries: 5
 
+  migrate:
+    build:
+      context: ../apps/api
+      dockerfile: Dockerfile
+      target: builder
+    environment:
+      GATEWARDEN_DB_DSN: "postgres://gatewarden:gatewarden@postgres:5432/gatewarden?sslmode=disable"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["/bin/migrate", "up"]
+    volumes:
+      - ../migrations:/migrations
+
   api:
     build:
       context: ../apps/api
@@ -28,8 +42,8 @@ services:
       GATEWARDEN_LOG_LEVEL: "debug"
       GATEWARDEN_ALLOWED_ORIGINS: "*"
     depends_on:
-      postgres:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     volumes:
       - ../migrations:/migrations
 
@@ -40,7 +54,8 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - api
+      api:
+        condition: service_started
 
 volumes:
   pgdata:

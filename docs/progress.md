@@ -27,7 +27,7 @@ See [Agent Features](agent-features.md).
 - [x] Node CRUD
 - [x] Incident CRUD
 - [x] Event feed + SSE streaming
-- [ ] Policy CRUD (MVP)
+- [x] Policy CRUD (MVP)
 - [x] Settings CRUD
 - [x] Environment-based config
 - [x] Structured logging
@@ -36,32 +36,32 @@ See [Backend API](backend-api.md).
 
 ### Database
 
-- [ ] Migration: `001_initial_schema.sql` — users, nodes, agents, incidents, events, agent_reports, policies, settings
+- [x] Migration: `001_initial_schema.sql` + `002_agents_and_reports.sql` — users, nodes, agents, incidents, events, agent_reports, policies, settings
 
 ### Frontend Scaffold
 
-- [ ] Vite + React + TypeScript project
-- [ ] TailwindCSS + daisyUI config
-- [ ] TanStack Router setup
-- [ ] TanStack Query setup
-- [ ] Zustand store (auth, theme)
-- [ ] Dark mode
-- [ ] API client layer
-- [ ] Login page
-- [ ] Dashboard page
-- [ ] Nodes list + detail pages
-- [ ] Incidents list + detail pages
+- [x] Vite + React + TypeScript project
+- [x] TailwindCSS + daisyUI config
+- [x] TanStack Router setup
+- [x] TanStack Query setup
+- [x] Zustand store (auth, theme)
+- [x] Dark mode
+- [x] API client layer
+- [x] Login page
+- [x] Dashboard page
+- [x] Nodes list + detail pages
+- [x] Incidents list + detail pages
 - [ ] Policies page
-- [ ] Settings page
+- [x] Settings page
 
 See [Frontend Pages](frontend-pages.md).
 
 ### Deployment
 
-- [ ] Docker Compose (api + db)
+- [x] Docker Compose (api + db + web + migrate)
 - [ ] `deploy/install.sh` agent installer
-- [ ] `deploy/systemd/gatewarden-agent.service`
-- [ ] Makefile targets
+- [x] `deploy/systemd/gatewarden-agent.service`
+- [x] Makefile targets
 
 See [Deployment](deployment.md).
 
@@ -243,9 +243,9 @@ See [Deployment](deployment.md).
 - [ ] Input validation
 - [ ] Structured logging coverage
 - [ ] Agent graceful shutdown
-- [ ] API rate limiting
-- [ ] CORS configuration
-- [ ] Database connection pooling
+- [x] API rate limiting
+- [x] CORS configuration
+- [x] Database connection pooling
 - [ ] Agent reconnection on network loss
 - [ ] Frontend error boundaries
 - [ ] Loading states on all pages

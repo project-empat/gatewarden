@@ -23,13 +23,13 @@ type Node struct {
 }
 
 type Incident struct {
-	ID        string    `json:"id"`
-	NodeID    string    `json:"node_id"`
-	Severity  string    `json:"severity"`
-	Title     string    `json:"title"`
-	Message   string    `json:"message"`
-	Status    string    `json:"status"`
-	CreatedAt time.Time `json:"created_at"`
+	ID         string     `json:"id"`
+	NodeID     string     `json:"node_id"`
+	Severity   string     `json:"severity"`
+	Title      string     `json:"title"`
+	Message    string     `json:"message"`
+	Status     string     `json:"status"`
+	CreatedAt  time.Time  `json:"created_at"`
 	ResolvedAt *time.Time `json:"resolved_at,omitempty"`
 }
 
@@ -49,16 +49,6 @@ type AgentReport struct {
 	ReceivedAt time.Time `json:"received_at"`
 }
 
-type RegisterRequest struct {
-	Hostname string `json:"hostname"`
-	Version  string `json:"version"`
-}
-
-type RegisterResponse struct {
-	NodeID string `json:"node_id"`
-	APIKey string `json:"api_key"`
-}
-
 type Event struct {
 	ID        string    `json:"id"`
 	NodeID    string    `json:"node_id"`
@@ -67,9 +57,21 @@ type Event struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type Policy struct {
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Enabled     bool      `json:"enabled"`
+	Severity    string    `json:"severity"`
+	Triggers    string    `json:"triggers"`
+	Actions     string    `json:"actions"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
 type DashboardStats struct {
-	TotalNodes    int `json:"total_nodes"`
-	OnlineNodes   int `json:"online_nodes"`
+	TotalNodes     int `json:"total_nodes"`
+	OnlineNodes    int `json:"online_nodes"`
 	TotalIncidents int `json:"total_incidents"`
 	OpenIncidents  int `json:"open_incidents"`
 }
@@ -82,4 +84,14 @@ type LoginRequest struct {
 type LoginResponse struct {
 	Token string `json:"token"`
 	User  User   `json:"user"`
+}
+
+type RegisterRequest struct {
+	Hostname string `json:"hostname"`
+	Version  string `json:"version"`
+}
+
+type RegisterResponse struct {
+	NodeID string `json:"node_id"`
+	APIKey string `json:"api_key"`
 }

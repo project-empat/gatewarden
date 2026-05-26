@@ -39,6 +39,7 @@ func main() {
 
 func findMigrationsDir() string {
 	candidates := []string{
+		"/migrations",
 		"migrations",
 		"../../migrations",
 		"../../../migrations",

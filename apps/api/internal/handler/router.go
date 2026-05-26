@@ -33,11 +33,12 @@ func NewRouter(svc *service.Service, log *zap.SugaredLogger, cfg *config.Config,
 	agentHandler := NewAgentHandler(svc.Agent)
 	nodeHandler := NewNodeHandler(svc.Node)
 	incidentHandler := NewIncidentHandler(db)
+	policyHandler := NewPolicyHandler(svc.Policy)
 	settingsHandler := NewSettingsHandler()
 	sseHandler := NewSSEHandler(svc.Event)
 
 	r.Route("/api", func(r chi.Router) {
-		// Public agent endpoints (API key auth)
+		// Agent endpoints (API key auth for report/heartbeat)
 		r.Post("/agent/register", agentHandler.Register)
 		r.With(middleware.AgentAuth(svc.Agent)).Post("/agent/report", agentHandler.Report)
 		r.With(middleware.AgentAuth(svc.Agent)).Post("/agent/heartbeat", agentHandler.Heartbeat)
@@ -56,6 +57,13 @@ func NewRouter(svc *service.Service, log *zap.SugaredLogger, cfg *config.Config,
 
 			r.Get("/incidents", incidentHandler.List)
 			r.Put("/incidents/{id}/resolve", incidentHandler.Resolve)
+
+			r.Get("/policies", policyHandler.List)
+			r.Get("/policies/{id}", policyHandler.Get)
+			r.Post("/policies", policyHandler.Create)
+			r.Put("/policies/{id}", policyHandler.Update)
+			r.Delete("/policies/{id}", policyHandler.Delete)
+			r.Post("/policies/{id}/toggle", policyHandler.Toggle)
 
 			r.Get("/settings", settingsHandler.Get)
 

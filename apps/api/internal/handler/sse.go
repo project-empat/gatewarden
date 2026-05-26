@@ -24,6 +24,12 @@ func (h *SSEHandler) Stream(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Support token via query param for EventSource API (can't set custom headers)
+	// The JWT auth middleware also validates the Authorization header
+	if token := r.URL.Query().Get("token"); token != "" {
+		r.Header.Set("Authorization", "Bearer "+token)
+	}
+
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
@@ -51,7 +57,7 @@ func (h *SSEHandler) Stream(w http.ResponseWriter, r *http.Request) {
 func (h *SSEHandler) History(w http.ResponseWriter, r *http.Request) {
 	events, err := h.svc.ListEvents(r.Context(), 50)
 	if err != nil {
-		http.Error(w, `{"error":"internal error"}`, http.StatusInternalServerError)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "internal error"})
 		return
 	}
 	if events == nil {
