@@ -52,7 +52,7 @@ services:
       context: ../apps/web
       dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - "${GATEWARDEN_WEB_PORT:-8085}:80"
     depends_on:
       api:
         condition: service_started
