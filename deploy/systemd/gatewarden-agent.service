@@ -1,22 +1,45 @@
 [Unit]
-Description=Gatewarden Agent
+Description=Gatewarden Agent — Infrastructure security monitoring
+Documentation=https://gatewarden.dev/docs
 After=network.target
+Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/gatewarden-agent \
-  --server https://your-gatewarden-instance.example.com \
-  --api-key YOUR_API_KEY \
-  --interval 60s
+User=root
+Group=root
+
+# Path to the agent binary
+ExecStart=/usr/local/bin/gatewarden-agent
+
+# Environment file — created by install.sh or manually
+# Contains: GATEWARDEN_SERVER= GATEWARDEN_API_KEY=
+EnvironmentFile=-/etc/gatewarden/agent.env
 
 Restart=on-failure
 RestartSec=10
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
 
 # Security hardening
 ProtectSystem=strict
 ProtectHome=true
 PrivateTmp=true
 NoNewPrivileges=true
+CapabilityBoundingSet=~CAP_SYS_PTRACE CAP_SYS_ADMIN
+ProtectKernelModules=true
+ProtectControlGroups=true
+ProtectKernelTunables=true
+ProtectProc=invisible
+MemoryDenyWriteExecute=true
+LockPersonality=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+RemoveIPC=true
 
 [Install]
 WantedBy=multi-user.target

@@ -5,17 +5,17 @@
 **Goal:** Working agent + API + basic UI that proves the concept.
 
 ### Agent
-- [ ] Go-based Linux agent (static binary)
-- [ ] Ubuntu/Debian support, amd64 + arm64
-- [ ] Docker discovery (list containers, inspect ports)
-- [ ] Open port scanning
-- [ ] SSH hardening checks
-- [ ] Firewall inspection (UFW/nftables)
-- [ ] CrowdSec status reporting
-- [ ] Tailscale status reporting
-- [ ] Cloudflare Tunnel status reporting
-- [ ] journald/auth log parsing
-- [ ] Outbound-only agent connection to API
+- [x] Go-based Linux agent (static binary)
+- [x] Ubuntu/Debian support, amd64 + arm64
+- [x] Docker discovery (list containers, inspect ports)
+- [x] Open port scanning
+- [x] SSH hardening checks
+- [x] Firewall inspection (UFW/nftables)
+- [x] CrowdSec status reporting
+- [x] Tailscale status reporting
+- [x] Cloudflare Tunnel status reporting
+- [x] journald/auth log parsing
+- [x] Outbound-only agent connection to API
 
 ### Backend
 - [ ] Golang monolith (Chi router)

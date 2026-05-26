@@ -7,11 +7,11 @@
 
 ### Agent Scaffold
 
-- [ ] `agent/cmd/agent/main.go` — entry point
-- [ ] `agent/internal/` — package structure (cloudflare, tailscale, ssh, crowdsec, fail2ban, docker, firewall, journald, reporter)
-- [ ] `agent/pkg/proto/` — shared report types
-- [ ] Static binary build target (`make build-agent-static`)
-- [ ] Systemd service file
+- [x] `agent/cmd/agent/main.go` — entry point
+- [x] `agent/internal/` — package structure (cloudflare, tailscale, ssh, crowdsec, fail2ban, docker, firewall, journald, reporter)
+- [x] `agent/pkg/proto/` — shared report types
+- [x] Static binary build target (`make build-agent-static`)
+- [x] Systemd service file
 
 See [Agent Features](agent-features.md).
 
@@ -71,67 +71,67 @@ See [Deployment](deployment.md).
 
 ### Port Scanning
 
-- [ ] Listening port detection (`ss -tlnp` equivalent)
-- [ ] Process-to-port mapping
-- [ ] Public exposure detection (0.0.0.0 bindings)
+- [x] Listening port detection (`ss -tlnp` equivalent)
+- [x] Process-to-port mapping
+- [x] Public exposure detection (0.0.0.0 bindings)
 
 ### Docker Discovery
 
-- [ ] Running container listing
-- [ ] Published port detection
-- [ ] Docker socket exposure check
-- [ ] Container-to-image mapping
+- [x] Running container listing
+- [x] Published port detection
+- [x] Docker socket exposure check
+- [x] Container-to-image mapping
 
 ### Firewall Inspection
 
-- [ ] UFW status and rules parsing
-- [ ] nftables ruleset inspection
-- [ ] Rule-to-port mapping
-- [ ] Active/inactive detection
+- [x] UFW status and rules parsing
+- [x] nftables ruleset inspection
+- [x] Rule-to-port mapping
+- [x] Active/inactive detection
 
 ### SSH Hardening Check — [full spec](ssh-hardening-features.md)
 
-- [ ] SSH config file parsing
-- [ ] Password auth detection
-- [ ] Root login setting
-- [ ] Port configuration
-- [ ] Public exposure flag
+- [x] SSH config file parsing
+- [x] Password auth detection
+- [x] Root login setting
+- [x] Port configuration
+- [x] Public exposure flag
 ### auth.log / journald Parsing — [full spec](authlog-features.md)
 
-- [ ] Failed SSH attempt detection
-- [ ] Source IP aggregation
-- [ ] Root login attempt detection
-- [ ] sudo usage tracking
-- [ ] Time-windowed counters (last hour, last 24h)
+- [x] Failed SSH attempt detection
+- [x] Source IP aggregation
+- [x] Root login attempt detection
+- [x] sudo usage tracking
+- [x] Time-windowed counters (last hour, last 24h)
 
 ### CrowdSec Status — [full spec](crowdsec-features.md)
 
-- [ ] CrowdSec installation detection
-- [ ] Service running check
-- [ ] Active decisions count
-- [ ] Bouncer status
-- [ ] Alert count (last hour)
+- [x] CrowdSec installation detection
+- [x] Service running check
+- [x] Active decisions count
+- [x] Bouncer status
+- [x] Alert count (last hour)
 
 ### Tailscale Status — [full spec](tailscale-features.md)
 
-- [ ] Tailscale installation detection
-- [ ] Node name and IP
-- [ ] Online status
+- [x] Tailscale installation detection
+- [x] Node name and IP
+- [x] Online status
 - [ ] ACL version check
 
 ### Cloudflare Tunnel Status — [full spec](cloudflare-features.md)
 
-- [ ] cloudflared installation detection
-- [ ] Tunnel ID and name
-- [ ] Ingress rules
-- [ ] Running status
+- [x] cloudflared installation detection
+- [x] Tunnel ID and name
+- [x] Ingress rules
+- [x] Running status
 
 ### Reporter Client
 
-- [ ] HTTP POST report to API
-- [ ] Heartbeat endpoint
-- [ ] Retry with backoff
-- [ ] Agent ID persistence
+- [x] HTTP POST report to API
+- [x] Heartbeat endpoint
+- [x] Retry with backoff
+- [x] Agent ID persistence (registration)
 
 ---
 

@@ -10,13 +10,13 @@ curl -sSL https://install.gatewarden.com | sudo bash
 
 ## Core Requirements
 
-- [ ] Go-based Linux agent
-- [ ] Static binary (single-file deployment)
-- [ ] Ubuntu/Debian support (apt-based install flow)
-- [ ] amd64 + arm64 architectures
-- [ ] Outbound-only connection to API server
-- [ ] Systemd service for lifecycle management
-- [ ] Periodic heartbeat + status reporting
+- [x] Go-based Linux agent
+- [x] Static binary (single-file deployment)
+- [x] Ubuntu/Debian support (apt-based install flow)
+- [x] amd64 + arm64 architectures
+- [x] Outbound-only connection to API server
+- [x] Systemd service for lifecycle management
+- [x] Periodic heartbeat + status reporting
 
 ---
 
