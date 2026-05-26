@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { ServerIcon, WifiIcon, XCircleIcon } from '@heroicons/react/24/outline'
+import { Server, Wifi, XCircle } from 'lucide-react'
 import { api } from '@/api/client'
 
 interface Node {
@@ -53,7 +53,7 @@ export function NodesPage() {
             {nodes?.length === 0 && (
               <tr>
                 <td colSpan={6} className="text-center text-base-content/40 py-12">
-                  <ServerIcon className="w-8 h-8 mx-auto mb-2" />
+                  <Server className="w-8 h-8 mx-auto mb-2" />
                   <p>No nodes registered yet. Install an agent on your server.</p>
                 </td>
               </tr>
@@ -73,9 +73,9 @@ export function NodesPage() {
                     }`}
                   >
                     {node.status === 'online' ? (
-                      <WifiIcon className="w-3 h-3" />
+                      <Wifi className="w-3 h-3" />
                     ) : (
-                      <XCircleIcon className="w-3 h-3" />
+                      <XCircle className="w-3 h-3" />
                     )}
                     {node.status}
                   </span>

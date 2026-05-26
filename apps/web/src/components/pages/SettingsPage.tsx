@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Cog6ToothIcon } from '@heroicons/react/24/outline'
+import { Settings as SettingsIcon } from 'lucide-react'
 import { api } from '@/api/client'
 
 interface Settings {
@@ -59,7 +59,7 @@ export function SettingsPage() {
 
       <div className="bg-base-100 rounded-xl p-5 border border-base-content/5">
         <div className="flex items-center gap-3 mb-4">
-          <Cog6ToothIcon className="w-5 h-5 text-base-content/40" />
+          <SettingsIcon className="w-5 h-5 text-base-content/40" />
           <h2 className="font-semibold">About</h2>
         </div>
         <p className="text-sm text-base-content/60">

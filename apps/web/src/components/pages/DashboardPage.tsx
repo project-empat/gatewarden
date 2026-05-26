@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import {
-  ServerIcon,
-  ExclamationTriangleIcon,
-  CheckCircleIcon,
-  ArrowPathIcon,
-} from '@heroicons/react/24/outline'
+  Server,
+  AlertTriangle,
+  CheckCircle,
+  RefreshCw,
+} from 'lucide-react'
 import { api } from '@/api/client'
 
 interface Stats {
@@ -33,28 +33,28 @@ export function DashboardPage() {
     {
       title: 'Total Nodes',
       value: stats?.total_nodes ?? 0,
-      icon: ServerIcon,
+      icon: Server,
       color: 'text-primary',
       bg: 'bg-primary/10',
     },
     {
       title: 'Online Nodes',
       value: stats?.online_nodes ?? 0,
-      icon: CheckCircleIcon,
+      icon: CheckCircle,
       color: 'text-success',
       bg: 'bg-success/10',
     },
     {
       title: 'Total Incidents',
       value: stats?.total_incidents ?? 0,
-      icon: ExclamationTriangleIcon,
+      icon: AlertTriangle,
       color: 'text-warning',
       bg: 'bg-warning/10',
     },
     {
       title: 'Open Incidents',
       value: stats?.open_incidents ?? 0,
-      icon: ArrowPathIcon,
+      icon: RefreshCw,
       color: 'text-error',
       bg: 'bg-error/10',
     },

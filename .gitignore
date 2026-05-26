@@ -35,3 +35,7 @@ Thumbs.db
 # Misc
 *.log
 /tmp/
+
+PLAN.md
+docs/licensing.md
+docs/product-vision.md

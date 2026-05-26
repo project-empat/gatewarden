@@ -24,7 +24,7 @@ gatewarden/
 # Prerequisites: Go 1.22+, Node.js 20+, pnpm, Docker
 
 # Clone and enter
-git clone https://github.com/yourorg/gatewarden.git
+git clone https://github.com/project-empat/gatewarden.git
 cd gatewarden
 
 # Start all services

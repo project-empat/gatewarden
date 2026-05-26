@@ -1,0 +1,136 @@
+# Gatewarden Roadmap
+
+## Phase 0: Foundation (MVP)
+
+**Goal:** Working agent + API + basic UI that proves the concept.
+
+### Agent
+- [ ] Go-based Linux agent (static binary)
+- [ ] Ubuntu/Debian support, amd64 + arm64
+- [ ] Docker discovery (list containers, inspect ports)
+- [ ] Open port scanning
+- [ ] SSH hardening checks
+- [ ] Firewall inspection (UFW/nftables)
+- [ ] CrowdSec status reporting
+- [ ] Tailscale status reporting
+- [ ] Cloudflare Tunnel status reporting
+- [ ] journald/auth log parsing
+- [ ] Outbound-only agent connection to API
+
+### Backend
+- [ ] Golang monolith (Chi router)
+- [ ] PostgreSQL database (sqlc + Goose migrations)
+- [ ] Agent registration and authentication
+- [ ] Agent heartbeat / status ingestion
+- [ ] SSE or WebSocket for real-time updates
+- [ ] Environment-based config
+- [ ] Structured logging
+- [ ] Initial schema: nodes, incidents, events
+
+### Frontend
+- [ ] Vite + React + TypeScript scaffold
+- [ ] TanStack Router + TanStack Query
+- [ ] TailwindCSS + daisyUI + lucide icons
+- [ ] Zustand state management
+- [ ] Dark mode
+- [ ] Login page
+- [ ] Dashboard page
+- [ ] Nodes page
+- [ ] Incidents page
+- [ ] Policies page
+- [ ] Settings page
+
+### Deployment
+- [ ] Docker Compose (API + DB + optional web proxy)
+- [ ] `install.sh` one-liner for agent
+- [ ] systemd service for agent
+- [ ] Makefile targets for dev, build, test
+
+## Phase 1: Secure Connectivity
+
+**Goal:** Users can manage tunnels and access policies from one place.
+
+- [ ] Cloudflare Zero Trust integration (list/manage tunnels) — [full spec](cloudflare-features.md)
+- [ ] Tailscale integration (list nodes, check ACLs) — [full spec](tailscale-features.md)
+- [ ] MFA enforcement visibility
+- [ ] Identity-aware access mapping
+- [ ] UI for "Expose privately", "Require MFA", "Restrict to team"
+
+## Phase 2: Host Security
+
+**Goal:** Hardened hosts with automatic attack detection and remediation.
+
+- [ ] CrowdSec integration (alerts, decisions, metrics) — [full spec](crowdsec-features.md)
+- [ ] Fail2Ban management (jails, bans, whitelist, config) — [full spec](fail2ban-features.md)
+- [ ] UFW/nftables rule management from UI — [full spec](firewall-features.md)
+- [ ] SSH hardening automation — [full spec](ssh-hardening-features.md)
+- [ ] Docker exposure scanning and alerts — [full spec](docker-security-features.md)
+- [ ] Brute-force blocking awareness
+- [ ] Geo-blocking configuration
+- [ ] Suspicious IP detection
+- [ ] Automatic remediation actions
+
+## Phase 3: Operational Visibility
+
+**Goal:** At-a-glance security status across all nodes.
+
+- [ ] Exposed services view
+- [ ] Incident timeline and details
+- [ ] Attack attempt feeds
+- [ ] Authentication activity log — [full spec](authlog-features.md)
+- [ ] Unhealthy systems alerting
+- [ ] Active tunnels map
+- [ ] Blocked IPs list
+- [ ] Connected nodes inventory
+- [ ] Infrastructure Security Graph POC — [full spec](security-graph.md)
+
+## Phase 4: Enterprise & Scale
+
+**Goal:** Multi-team, multi-node management with governance features.
+
+- [ ] RBAC (roles, permissions)
+- [ ] Audit logs
+- [ ] SSO/SAML/OIDC
+- [ ] Advanced policy engine
+- [ ] Team management
+- [ ] Approval workflows
+- [ ] Advanced automation
+- [ ] Compliance exports
+- [ ] Premium alert routing
+- [ ] MSP multi-tenancy
+- [ ] Client isolation
+- [ ] Delegated access
+- [ ] Advanced reporting
+- [ ] Hosted cloud control plane
+- [ ] License key enforcement
+
+## Explicit Out-of-Scope (for now)
+
+- Kubernetes support
+- Windows agent
+- Full SIEM
+- Generic observability / metrics dashboards
+- Compliance reporting frameworks
+- Plugin marketplace
+- Custom query language
+- Enterprise procurement features (quote-to-cash)
+
+## See Also
+
+- [Architecture](architecture.md)
+- [Agent Features](agent-features.md)
+- [Backend API](backend-api.md)
+- [Frontend Pages](frontend-pages.md)
+- [Deployment](deployment.md)
+- [Licensing](licensing.md)
+- [Progress](progress.md)
+- [CrowdSec](crowdsec-features.md)
+- [Cloudflare](cloudflare-features.md)
+- [Tailscale](tailscale-features.md)
+- [Firewall](firewall-features.md)
+- [SSH Hardening](ssh-hardening-features.md)
+- [Docker Security](docker-security-features.md)
+- [Auth Log](authlog-features.md)
+- [Fail2Ban](fail2ban-features.md)
+- [Security Graph](security-graph.md)
+- [Policies](policies-features.md)

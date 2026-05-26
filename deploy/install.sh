@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-REPO="${REPO:-yourorg/gatewarden}"
+REPO="${REPO:-project-empat/gatewarden}"
 VERSION="${VERSION:-latest}"
 BINDIR="${BINDIR:-/usr/local/bin}"
 

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { ShieldCheckIcon } from '@heroicons/react/24/outline'
+import { ShieldCheck } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 
 export function LoginPage() {
@@ -26,7 +26,7 @@ export function LoginPage() {
       <div className="card w-full max-w-md bg-base-100 shadow-xl">
         <div className="card-body p-8">
           <div className="flex flex-col items-center gap-3 mb-6">
-            <ShieldCheckIcon className="w-12 h-12 text-primary" />
+            <ShieldCheck className="w-12 h-12 text-primary" />
             <h1 className="text-2xl font-bold">Gatewarden</h1>
             <p className="text-base-content/60 text-sm">Infrastructure Security Control Plane</p>
           </div>

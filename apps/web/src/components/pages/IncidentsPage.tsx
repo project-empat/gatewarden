@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { CheckCircleIcon } from '@heroicons/react/24/outline'
+import { CheckCircle } from 'lucide-react'
 import { api } from '@/api/client'
 
 interface Incident {
@@ -55,7 +55,7 @@ export function IncidentsPage() {
       <div className="space-y-3">
         {incidents?.length === 0 && (
           <div className="bg-base-100 rounded-xl p-12 text-center border border-base-content/5">
-            <CheckCircleIcon className="w-12 h-12 mx-auto text-success mb-3" />
+            <CheckCircle className="w-12 h-12 mx-auto text-success mb-3" />
             <p className="font-medium">No incidents</p>
             <p className="text-sm text-base-content/60">Your infrastructure is secure.</p>
           </div>
@@ -88,7 +88,7 @@ export function IncidentsPage() {
                   className="btn btn-ghost btn-sm text-success"
                   onClick={() => resolveMutation.mutate(inc.id)}
                 >
-                  <CheckCircleIcon className="w-4 h-4" />
+                  <CheckCircle className="w-4 h-4" />
                   Resolve
                 </button>
               )}

@@ -1,19 +1,19 @@
 import { Link, useLocation } from '@tanstack/react-router'
 import {
-  ShieldCheckIcon,
-  ServerIcon,
-  ExclamationTriangleIcon,
-  Cog6ToothIcon,
-  ArrowRightOnRectangleIcon,
-  ChartBarSquareIcon,
-} from '@heroicons/react/24/outline'
+  ShieldCheck,
+  Server,
+  AlertTriangle,
+  Settings,
+  LogOut,
+  BarChart3,
+} from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 
 const navItems = [
-  { path: '/dashboard', label: 'Dashboard', icon: ChartBarSquareIcon },
-  { path: '/nodes', label: 'Nodes', icon: ServerIcon },
-  { path: '/incidents', label: 'Incidents', icon: ExclamationTriangleIcon },
-  { path: '/settings', label: 'Settings', icon: Cog6ToothIcon },
+  { path: '/dashboard', label: 'Dashboard', icon: BarChart3 },
+  { path: '/nodes', label: 'Nodes', icon: Server },
+  { path: '/incidents', label: 'Incidents', icon: AlertTriangle },
+  { path: '/settings', label: 'Settings', icon: Settings },
 ]
 
 export function Sidebar() {
@@ -25,7 +25,7 @@ export function Sidebar() {
       <label htmlFor="sidebar-drawer" className="drawer-overlay" />
       <aside className="bg-base-300 text-base-content min-h-screen w-64 flex flex-col">
         <div className="flex items-center gap-3 px-6 py-5 border-b border-base-content/10">
-          <ShieldCheckIcon className="w-8 h-8 text-primary" />
+          <ShieldCheck className="w-8 h-8 text-primary" />
           <span className="text-xl font-bold tracking-tight">Gatewarden</span>
         </div>
 
@@ -55,7 +55,7 @@ export function Sidebar() {
             onClick={logout}
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-base-content/70 hover:bg-base-200 hover:text-base-content w-full transition-colors"
           >
-            <ArrowRightOnRectangleIcon className="w-5 h-5" />
+            <LogOut className="w-5 h-5" />
             Logout
           </button>
         </div>
