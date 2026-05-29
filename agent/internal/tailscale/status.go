@@ -53,6 +53,11 @@ func Check() (*proto.TailscaleStatus, error) {
 		status.Version = strings.TrimSpace(string(out))
 	}
 
+	// Check ACL version via tailscale debug
+	if out, err := exec.Command("tailscale", "debug", "acls").Output(); err == nil {
+		status.ACLVersion = strings.TrimSpace(string(out))
+	}
+ 
 	// Try JSON status for maximum detail
 	if out, err := exec.Command("tailscale", "status", "--json").Output(); err == nil {
 		var ts tsStatus

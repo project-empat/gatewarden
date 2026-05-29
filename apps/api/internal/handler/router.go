@@ -34,7 +34,10 @@ func NewRouter(svc *service.Service, log *zap.SugaredLogger, cfg *config.Config,
 	nodeHandler := NewNodeHandler(svc.Node)
 	incidentHandler := NewIncidentHandler(db)
 	policyHandler := NewPolicyHandler(svc.Policy)
-	settingsHandler := NewSettingsHandler()
+	settingsHandler := NewSettingsHandler(svc.Settings)
+	cloudflareHandler := NewCloudflareHandler(svc.Settings)
+	tailscaleHandler := NewTailscaleHandler(svc.Settings)
+	actionHandler := NewActionHandler(svc.Action)
 	sseHandler := NewSSEHandler(svc.Event)
 
 	r.Route("/api", func(r chi.Router) {
@@ -51,9 +54,11 @@ func NewRouter(svc *service.Service, log *zap.SugaredLogger, cfg *config.Config,
 			r.Use(middleware.Auth(svc.Auth))
 
 			r.Get("/dashboard/stats", nodeHandler.DashboardStats)
+			r.Get("/dashboard/security-summary", nodeHandler.SecuritySummary)
 
 			r.Get("/nodes", nodeHandler.List)
 			r.Get("/nodes/{id}", nodeHandler.Get)
+			r.Get("/nodes/{id}/report", nodeHandler.Report)
 
 			r.Get("/incidents", incidentHandler.List)
 			r.Put("/incidents/{id}/resolve", incidentHandler.Resolve)
@@ -66,11 +71,28 @@ func NewRouter(svc *service.Service, log *zap.SugaredLogger, cfg *config.Config,
 			r.Post("/policies/{id}/toggle", policyHandler.Toggle)
 
 			r.Get("/settings", settingsHandler.Get)
+			r.Put("/settings", settingsHandler.Update)
+
+			// Cloudflare Integration
+			r.Get("/cloudflare/accounts", cloudflareHandler.Accounts)
+			r.Get("/cloudflare/tunnels", cloudflareHandler.Tunnels)
+			r.Get("/cloudflare/tunnel-health", cloudflareHandler.TunnelHealth)
+
+			// Tailscale Integration
+			r.Get("/tailscale/devices", tailscaleHandler.Devices)
+			r.Get("/tailscale/acl", tailscaleHandler.ACL)
+
+			// Actions (user-initiated remediation)
+			r.Post("/actions", actionHandler.Create)
 
 			r.Get("/events", sseHandler.Stream)
 			r.Get("/events/history", sseHandler.History)
 		})
 	})
+
+	// Agent action polling (API key auth, outside JWT group)
+	r.With(middleware.AgentAuth(svc.Agent)).Get("/api/agent/actions", actionHandler.Poll)
+	r.With(middleware.AgentAuth(svc.Agent)).Post("/api/agent/actions/{id}/complete", actionHandler.Complete)
 
 	return r
 }

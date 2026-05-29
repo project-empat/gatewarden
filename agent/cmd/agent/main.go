@@ -45,6 +45,9 @@ func main() {
 		log.Printf("registration failed (will retry): %v", err)
 	}
 
+	// Action executor for remediation commands
+	exec := reporter.NewActionExecutor(*serverURL, *apiKey, hostname)
+
 	// Signal handling for graceful shutdown
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
@@ -53,8 +56,10 @@ func main() {
 
 	reportTicker := time.NewTicker(*interval)
 	heartbeatTicker := time.NewTicker(*heartbeatInterval)
+	actionTicker := time.NewTicker(30 * time.Second)
 	defer reportTicker.Stop()
 	defer heartbeatTicker.Stop()
+	defer actionTicker.Stop()
 
 	// Run initial collection immediately
 	runReport(rep, hostname)
@@ -67,9 +72,14 @@ func main() {
 			if err := rep.SendHeartbeat(); err != nil {
 				log.Printf("heartbeat failed: %v", err)
 			}
+		case <-actionTicker.C:
+			if err := exec.PollAndExecute(); err != nil {
+				log.Printf("action poll failed: %v", err)
+			}
 		case sig := <-sigCh:
 			log.Printf("received signal %v, shutting down", sig)
 			rep.Close()
+			exec.Close()
 			return
 		}
 	}

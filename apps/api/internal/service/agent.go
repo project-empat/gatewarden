@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -287,6 +288,7 @@ func (s *AgentService) maybeCreateIncident(ctx context.Context, nodeID, eventTyp
 	)
 	if err != nil {
 		s.log.Warnw("failed to create incident", "error", err)
+		return
 	}
 
 	// Also publish as event
@@ -299,6 +301,106 @@ func (s *AgentService) maybeCreateIncident(ctx context.Context, nodeID, eventTyp
 		Type:    eventType,
 		Payload: string(eventPayload),
 	})
+
+	// Evaluate enabled policies that match this incident type
+	s.evaluatePolicies(ctx, nodeID, eventType, severity, message)
+}
+
+// evaluatePolicies checks enabled policies and creates remediation actions for matches.
+func (s *AgentService) evaluatePolicies(ctx context.Context, nodeID, eventType, severity, message string) {
+	rows, err := s.db.Query(ctx,
+		`SELECT id, name, triggers, actions FROM policies WHERE enabled = true`,
+	)
+	if err != nil {
+		s.log.Warnw("query policies for evaluation", "error", err)
+		return
+	}
+	defer rows.Close()
+
+	type policyMatch struct {
+		id      string
+		name    string
+		triggers string
+		actions string
+	}
+	var matches []policyMatch
+
+	for rows.Next() {
+		var p policyMatch
+		if err := rows.Scan(&p.id, &p.name, &p.triggers, &p.actions); err != nil {
+			continue
+		}
+
+		// Simple trigger matching: check if trigger string contains the event type
+		triggerLower := strings.ToLower(p.triggers)
+		if strings.Contains(triggerLower, eventType) ||
+			strings.Contains(triggerLower, severity) ||
+			strings.Contains(triggerLower, "all") {
+			matches = append(matches, p)
+		}
+	}
+
+	for _, m := range matches {
+		s.log.Infow("policy matched, creating action", "policy", m.name, "event", eventType)
+
+		// Parse actions JSON to determine action types
+		var actionsList []map[string]interface{}
+		if err := json.Unmarshal([]byte(m.actions), &actionsList); err != nil {
+			// If actions is a plain text string, try to parse known patterns
+			actionText := strings.ToLower(m.actions)
+			var actionType string
+			var params map[string]interface{}
+
+			switch {
+			case strings.Contains(actionText, "block") || strings.Contains(actionText, "ban"):
+				actionType = "fail2ban_ban_ip"
+				params = map[string]interface{}{"ip": "{{.SourceIP}}", "jail": "sshd"}
+			case strings.Contains(actionText, "deny") || strings.Contains(actionText, "firewall"):
+				actionType = "ufw_deny_port"
+				params = map[string]interface{}{"port": 22, "protocol": "tcp"}
+			default:
+				s.log.Debugw("unrecognized policy action, skipping", "actions", m.actions)
+				continue
+			}
+
+			paramBytes, _ := json.Marshal(params)
+			_, err := s.db.Exec(ctx,
+				`INSERT INTO agent_actions (id, node_id, action_type, params, status)
+				 VALUES ($1, $2, $3, $4, 'pending')`,
+				uuid.New().String(), nodeID, actionType, string(paramBytes),
+			)
+			if err != nil {
+				s.log.Warnw("failed to create auto-remediation action", "error", err)
+			}
+		} else {
+			// Structured JSON actions
+			for _, action := range actionsList {
+				actType, _ := action["type"].(string)
+				config, _ := action["config"].(map[string]interface{})
+				if actType != "remediate" || config == nil {
+					continue
+				}
+				cmdConfig, _ := config["command"].(map[string]interface{})
+				if cmdConfig == nil {
+					continue
+				}
+				actionType, _ := cmdConfig["action"].(string)
+				paramsRaw, _ := cmdConfig["params"].(map[string]interface{})
+				if actionType == "" {
+					continue
+				}
+				paramBytes, _ := json.Marshal(paramsRaw)
+				_, err := s.db.Exec(ctx,
+					`INSERT INTO agent_actions (id, node_id, action_type, params, status)
+					 VALUES ($1, $2, $3, $4, 'pending')`,
+					uuid.New().String(), nodeID, actionType, string(paramBytes),
+				)
+				if err != nil {
+					s.log.Warnw("failed to create auto-remediation action", "error", err)
+				}
+			}
+		}
+	}
 }
 
 func generateAPIKey() (string, error) {

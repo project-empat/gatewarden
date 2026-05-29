@@ -76,6 +76,16 @@ type DashboardStats struct {
 	OpenIncidents  int `json:"open_incidents"`
 }
 
+type Settings struct {
+	AgentAutoApprove   bool      `json:"agent_auto_approve"`
+	HeartbeatInterval  int       `json:"heartbeat_interval"`
+	LogRetentionDays   int       `json:"log_retention_days"`
+	CloudflareAPIToken string    `json:"cloudflare_api_token"`
+	TailscaleAPIKey    string    `json:"tailscale_api_key"`
+	TailscaleTailnet   string    `json:"tailscale_tailnet"`
+	UpdatedAt          time.Time `json:"updated_at"`
+}
+
 type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -94,4 +104,14 @@ type RegisterRequest struct {
 type RegisterResponse struct {
 	NodeID string `json:"node_id"`
 	APIKey string `json:"api_key"`
+}
+
+type AgentAction struct {
+	ID          string     `json:"id"`
+	NodeID      string     `json:"node_id"`
+	ActionType  string     `json:"action_type"`
+	Params      string     `json:"params"`
+	Status      string     `json:"status"`
+	CreatedAt   time.Time  `json:"created_at"`
+	CompletedAt *time.Time `json:"completed_at,omitempty"`
 }

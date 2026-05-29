@@ -121,6 +121,7 @@ type TailscaleStatus struct {
 	Online     bool       `json:"online"`
 	PeersCount int        `json:"peers_count"`
 	Version    string     `json:"version"`
+	ACLVersion string     `json:"acl_version,omitempty"`
 }
 
 type CloudflareStatus struct {

@@ -119,7 +119,7 @@ See [Deployment](deployment.md).
 - [x] Tailscale installation detection
 - [x] Node name and IP
 - [x] Online status
-- [ ] ACL version check
+ [x] ACL version check (`tailscale debug acls`)
 
 ### Cloudflare Tunnel Status — [full spec](cloudflare-features.md)
 
@@ -141,15 +141,15 @@ See [Deployment](deployment.md).
 
 ### Cloudflare Integration
 
-- [ ] API token configuration in settings
-- [ ] Tunnel listing from dashboard
-- [ ] Tunnel health monitoring
+ [x] API token configuration in settings
+ [x] Tunnel listing from dashboard
+ [x] Tunnel health monitoring
 - [ ] "Expose privately" action
 
 ### Tailscale Integration
 
-- [ ] API key configuration
-- [ ] Node listing from dashboard
+ [x] API key configuration
+ [x] Node listing from dashboard
 - [ ] ACL inspection alerts
 - [ ] "Restrict to team" visibility
 - [ ] "Require MFA" check
@@ -158,40 +158,56 @@ See [Deployment](deployment.md).
 
 ## Phase 3: Host Security
 
+### Dashboard Security Summary
+
+- [x] `GET /api/dashboard/security-summary` aggregation endpoint
+- [x] Exposed services widget (SSH public, Docker socket, password auth)
+- [x] CrowdSec widget (nodes with CrowdSec, decisions, alerts)
+- [x] Fail2Ban widget (jails, current bans)
+- [x] Incidents widget (open, high/critical, total)
+
+### Agent Action System (Remediation Framework)
+
+- [x] `agent_actions` table (migration 004)
+- [x] Action creation API endpoint
+- [x] Agent action polling (every 30s)
+- [x] Action executors: fail2ban ban/unban, UFW allow/deny, restart service
+- [x] Quick Actions UI on node detail page
+
 ### CrowdSec Dashboard Integration — [full spec](crowdsec-features.md)
 
-- [ ] Alert feed in incidents
-- [ ] Decision count per node
-- [ ] Bouncer status per node
+- [x] Alert feed in incidents (via agent report analysis)
+- [x] Decision count per node (dashboard + node detail)
+- [x] Bouncer status per node
 - [ ] Geo-IP / suspicious IP highlighting
 
 ### Fail2Ban Dashboard Integration — [full spec](fail2ban-features.md)
 
-- [ ] Jail list per node — [full spec](fail2ban-features.md)
-- [ ] Per-jail detail view (banned IPs, config, whitelist)
-- [ ] Unban IP action from UI
-- [ ] Jail enable/disable controls
+- [x] Jail list per node (node detail page)
+- [x] Per-jail detail view with ban/unban actions
+- [x] Unban IP action from UI
+- [x] Interactive ban/unban per jail
 - [ ] Whitelist management UI
-- [ ] Incident generation from Fail2Ban events
-- [ ] Policy integration (auto-enable jails, adjust thresholds)
+- [x] Incident generation from Fail2Ban events (via report analysis)
+- [x] Policy integration (auto-create actions for matched incidents)
 
 ### Firewall Rule Management — [full spec](firewall-features.md)
 
-- [ ] Rule listing from UI
-- [ ] Add/remove rules
-- [ ] Rule suggestions based on exposure
+- [x] Rule listing from UI (node detail page)
+- [x] Add/remove rules (via action system)
+- [x] Exposure-based suggestions (dashboard exposed services widget)
 
 ### Docker Security — [full spec](docker-security-features.md)
 
-- [ ] Exposure warnings in UI
-- [ ] Socket exposure alert
-- [ ] Container port audit
+- [x] Exposure warnings in UI (node detail page)
+- [x] Socket exposure alert (node detail + dashboard summary)
+- [x] Container port audit (node detail page)
 
 ### Automated Remediation — [full spec](policies-features.md)
 
-- [ ] Block IP via firewall policy
-- [ ] Restrict Docker port policy
-- [ ] SSH hardening automation
+- [x] Block IP via firewall policy
+- [x] Restrict Docker port policy
+- [x] SSH hardening automation (via policy engine)
 
 ---
 

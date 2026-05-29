@@ -47,3 +47,24 @@ func (h *NodeHandler) DashboardStats(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, http.StatusOK, stats)
 }
+
+func (h *NodeHandler) SecuritySummary(w http.ResponseWriter, r *http.Request) {
+	summary, err := h.svc.SecuritySummary(r.Context())
+	if err != nil {
+		http.Error(w, `{"error":"internal error"}`, http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, http.StatusOK, summary)
+}
+
+func (h *NodeHandler) Report(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	report, err := h.svc.GetLatestReport(r.Context(), id)
+	if err != nil {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "no report available"})
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(report)
+}
+ 

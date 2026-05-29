@@ -11,6 +11,8 @@ type Service struct {
 	Event  *EventService
 	Agent  *AgentService
 	Policy *PolicyService
+	Settings *SettingsService
+	Action *ActionService
 }
 
 func New(db *pgxpool.Pool, log *zap.SugaredLogger, jwtSecret string) *Service {
@@ -21,5 +23,7 @@ func New(db *pgxpool.Pool, log *zap.SugaredLogger, jwtSecret string) *Service {
 		Event:  ev,
 		Agent:  NewAgentService(db, log, ev),
 		Policy: NewPolicyService(db),
+		Settings: NewSettingsService(db),
+		Action: NewActionService(db, log),
 	}
 }
