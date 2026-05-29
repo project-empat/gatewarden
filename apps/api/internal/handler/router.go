@@ -39,6 +39,8 @@ func NewRouter(svc *service.Service, log *zap.SugaredLogger, cfg *config.Config,
 	tailscaleHandler := NewTailscaleHandler(svc.Settings)
 	actionHandler := NewActionHandler(svc.Action)
 	sseHandler := NewSSEHandler(svc.Event)
+	graphHandler := NewGraphHandler(svc.Graph)
+	reportHandler := NewReportHandler(svc.Report)
 
 	r.Route("/api", func(r chi.Router) {
 		// Agent endpoints (API key auth for report/heartbeat)
@@ -87,6 +89,16 @@ func NewRouter(svc *service.Service, log *zap.SugaredLogger, cfg *config.Config,
 
 			r.Get("/events", sseHandler.Stream)
 			r.Get("/events/history", sseHandler.History)
+
+			// Security Graph
+			r.Get("/graph", graphHandler.Full)
+			r.Get("/graph/nodes/{id}", graphHandler.Node)
+			r.Get("/graph/stats", graphHandler.Stats)
+
+			// Reports
+			r.Get("/reports/posture", reportHandler.Posture)
+			r.Get("/reports/incidents", reportHandler.Incidents)
+			r.Get("/reports/health", reportHandler.Health)
 		})
 	})
 

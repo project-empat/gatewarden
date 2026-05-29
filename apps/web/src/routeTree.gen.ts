@@ -10,10 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as PoliciesRouteImport } from './routes/policies'
 import { Route as NodesRouteImport } from './routes/nodes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IncidentsRouteImport } from './routes/incidents'
+import { Route as GraphRouteImport } from './routes/graph'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as NodesIndexRouteImport } from './routes/nodes.index'
 import { Route as IncidentsIndexRouteImport } from './routes/incidents.index'
@@ -23,6 +25,11 @@ import { Route as IncidentsIncidentIdRouteImport } from './routes/incidents.$inc
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportsRoute = ReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PoliciesRoute = PoliciesRouteImport.update({
@@ -43,6 +50,11 @@ const LoginRoute = LoginRouteImport.update({
 const IncidentsRoute = IncidentsRouteImport.update({
   id: '/incidents',
   path: '/incidents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GraphRoute = GraphRouteImport.update({
+  id: '/graph',
+  path: '/graph',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -73,10 +85,12 @@ const IncidentsIncidentIdRoute = IncidentsIncidentIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
+  '/graph': typeof GraphRoute
   '/incidents': typeof IncidentsRouteWithChildren
   '/login': typeof LoginRoute
   '/nodes': typeof NodesRouteWithChildren
   '/policies': typeof PoliciesRoute
+  '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/incidents/$incidentId': typeof IncidentsIncidentIdRoute
   '/nodes/$nodeId': typeof NodesNodeIdRoute
@@ -85,8 +99,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
+  '/graph': typeof GraphRoute
   '/login': typeof LoginRoute
   '/policies': typeof PoliciesRoute
+  '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/incidents/$incidentId': typeof IncidentsIncidentIdRoute
   '/nodes/$nodeId': typeof NodesNodeIdRoute
@@ -96,10 +112,12 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/dashboard': typeof DashboardRoute
+  '/graph': typeof GraphRoute
   '/incidents': typeof IncidentsRouteWithChildren
   '/login': typeof LoginRoute
   '/nodes': typeof NodesRouteWithChildren
   '/policies': typeof PoliciesRoute
+  '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/incidents/$incidentId': typeof IncidentsIncidentIdRoute
   '/nodes/$nodeId': typeof NodesNodeIdRoute
@@ -110,10 +128,12 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/dashboard'
+    | '/graph'
     | '/incidents'
     | '/login'
     | '/nodes'
     | '/policies'
+    | '/reports'
     | '/settings'
     | '/incidents/$incidentId'
     | '/nodes/$nodeId'
@@ -122,8 +142,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/dashboard'
+    | '/graph'
     | '/login'
     | '/policies'
+    | '/reports'
     | '/settings'
     | '/incidents/$incidentId'
     | '/nodes/$nodeId'
@@ -132,10 +154,12 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/dashboard'
+    | '/graph'
     | '/incidents'
     | '/login'
     | '/nodes'
     | '/policies'
+    | '/reports'
     | '/settings'
     | '/incidents/$incidentId'
     | '/nodes/$nodeId'
@@ -145,10 +169,12 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
+  GraphRoute: typeof GraphRoute
   IncidentsRoute: typeof IncidentsRouteWithChildren
   LoginRoute: typeof LoginRoute
   NodesRoute: typeof NodesRouteWithChildren
   PoliciesRoute: typeof PoliciesRoute
+  ReportsRoute: typeof ReportsRoute
   SettingsRoute: typeof SettingsRoute
 }
 
@@ -159,6 +185,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reports': {
+      id: '/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof ReportsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/policies': {
@@ -187,6 +220,13 @@ declare module '@tanstack/react-router' {
       path: '/incidents'
       fullPath: '/incidents'
       preLoaderRoute: typeof IncidentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/graph': {
+      id: '/graph'
+      path: '/graph'
+      fullPath: '/graph'
+      preLoaderRoute: typeof GraphRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -255,10 +295,12 @@ const NodesRouteWithChildren = NodesRoute._addFileChildren(NodesRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
+  GraphRoute: GraphRoute,
   IncidentsRoute: IncidentsRouteWithChildren,
   LoginRoute: LoginRoute,
   NodesRoute: NodesRouteWithChildren,
   PoliciesRoute: PoliciesRoute,
+  ReportsRoute: ReportsRoute,
   SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport

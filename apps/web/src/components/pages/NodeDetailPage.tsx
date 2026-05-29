@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import { useParams, Link } from '@tanstack/react-router'
+import { useEffect, useRef } from 'react'
+import cytoscape from 'cytoscape'
 import {
   ArrowLeft,
   Server,
@@ -20,6 +22,8 @@ import {
   Ban,
   ShieldOff,
   Unlock,
+  UserCheck,
+  Eye,
 } from 'lucide-react'
 import { api } from '@/api/client'
 
@@ -174,6 +178,68 @@ function StatusRow({ label, children }: { label: string; children: React.ReactNo
   )
 }
 
+function NodeMiniGraph({ nodeId }: { nodeId: string }) {
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  const { data: graphData } = useQuery({
+    queryKey: ['node-graph', nodeId],
+    queryFn: () => api.get(`api/graph/nodes/${nodeId}`).json(),
+    retry: false,
+  })
+
+  useEffect(() => {
+    if (!containerRef.current || !graphData) return
+    const resp = graphData as { elements: Array<{ data: Record<string, unknown> }> }
+    if (!resp.elements || resp.elements.length === 0) return
+
+    const cy = cytoscape({
+      container: containerRef.current,
+      elements: resp.elements.map((el) => ({
+        group: el.data.source && el.data.target ? ('edges' as const) : ('nodes' as const),
+        data: { ...el.data, id: el.data.id as string },
+      })),
+      style: [
+        { selector: 'node', style: {
+            label: 'data(label)', color: '#9ca3af', 'font-size': '10px',
+            'text-valign': 'bottom', 'text-outline-width': 2,
+            'text-outline-color': '#1f2937', 'background-color': '#1e293b',
+            'border-color': '#475569', 'border-width': 2, width: 30, height: 30,
+        }},
+        { selector: 'node[type = "internet"]', style: { 'background-color': '#4b5563', 'border-color': '#6b7280', width: 40, height: 40 }},
+        { selector: 'node[type = "node"]', style: { 'background-color': '#1e40af', 'border-color': '#3b82f6' }},
+        { selector: 'node[type = "service"]', style: { 'background-color': '#92400e', 'border-color': '#f59e0b', shape: 'ellipse' }},
+        { selector: 'node[type = "container"]', style: { 'background-color': '#065f46', 'border-color': '#10b981', shape: 'rectangle' }},
+        { selector: 'node[type = "firewall"]', style: { 'background-color': '#0e7490', 'border-color': '#06b6d4' }},
+        { selector: 'node[type = "incident"]', style: { 'background-color': '#991b1b', 'border-color': '#ef4444', 'background-opacity': 0.4 }},
+        { selector: 'edge', style: {
+            width: 1.5, 'line-color': '#4b5563', 'target-arrow-shape': 'triangle',
+            'arrow-scale': 1, 'curve-style': 'bezier',
+        }},
+      ],
+      layout: { name: 'breadthfirst', directed: true, spacingFactor: 1.2, animate: true, animationDuration: 300 },
+      userZoomingEnabled: false, userPanningEnabled: false, autolock: true,
+    } as any)
+
+    return () => { cy.destroy() }
+  }, [graphData])
+
+  if (!graphData) return null
+
+  // Determine mini-graph height based on data
+  const elemCount = (graphData as any).elements?.length ?? 0
+  const height = elemCount > 8 ? 'h-64' : 'h-48'
+
+  return (
+    <div className="bg-base-100 rounded-xl border border-base-content/5 overflow-hidden">
+      <div className="px-5 py-3 border-b border-base-content/5 flex items-center gap-2">
+        <Activity className="w-4 h-4 text-base-content/40" />
+        <h2 className="font-semibold text-sm">Network Graph</h2>
+    </div>
+      <div ref={containerRef} className={`w-full ${height}`} />
+    </div>
+  )
+}
+
 export function NodeDetailPage() {
   const { nodeId } = useParams({ from: '/nodes/$nodeId' })
 
@@ -292,6 +358,9 @@ export function NodeDetailPage() {
           {report && <StatusRow label="OS Release">{report.os}</StatusRow>}
         </Section>
       </div>
+
+      {/* Mini Network Graph */}
+      <NodeMiniGraph nodeId={nodeId} />
 
       {reportLoading && (
         <div className="flex justify-center py-8">
@@ -437,7 +506,21 @@ export function NodeDetailPage() {
                     </div>
                   </div>
                 ))}
+                <div className="mt-3 pt-3 border-t border-base-content/5">
+                  <p className="text-xs text-base-content/40 mb-2">Whitelist Management</p>
+                  <div className="flex gap-2">
+                    <button
+                      className="btn btn-ghost btn-xs"
+                      onClick={() => {
+                        const ip = prompt('Add IP to whitelist:')
+                        if (ip) createAction.mutate({ nodeId, actionType: 'fail2ban_unban_ip', params: { ip, jail: 'all' } })
+                      }}
+                    >
+                      Add to Whitelist
+                    </button>
+                  </div>
               </div>
+          </div>
             )}
           </div>
         </Section>
@@ -458,7 +541,15 @@ export function NodeDetailPage() {
             {report.tailscale.acl_version && (
               <StatusRow label="ACL Hash">
                 <span className="font-mono text-xs">{report.tailscale.acl_version}</span>
+                <span className="tooltip tooltip-right" data-tip="ACL hash changes may indicate configuration drift">
+                  <AlertTriangle className="w-3 h-3 text-warning ml-1 inline" />
+                </span>
               </StatusRow>
+            )}
+            {report.tailscale.acl_version && (
+              <div className="bg-warning/5 border border-warning/20 rounded-lg p-2 text-xs text-warning">
+                ACL configuration is being tracked. Use the Tailscale admin console to review access policies.
+          </div>
             )}
           </div>
         </Section>
@@ -482,7 +573,21 @@ export function NodeDetailPage() {
                 ))}
               </div>
             )}
-          </div>
+            {report.cloudflare_tunnel.tunnels && report.cloudflare_tunnel.tunnels.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                <button
+                  className="btn btn-ghost btn-xs gap-1 text-info"
+                  onClick={() => {
+                    const hostname = prompt('Hostname to expose privately:')
+                    if (hostname) createAction.mutate({ nodeId, actionType: 'cloudflare_expose_privately', params: { hostname } })
+                  }}
+                >
+                  <Globe className="w-3 h-3" />
+                  Expose Privately
+                </button>
+              </div>
+            )}
+              </div>
         </Section>
       )}
 
@@ -505,9 +610,17 @@ export function NodeDetailPage() {
               <div>
                 <p className="text-xs text-base-content/40 mb-1">Top Source IPs</p>
                 {report.auth_log.failed_ssh_top_ips.slice(0, 5).map((ip) => (
-                  <div key={ip.ip} className="flex justify-between text-xs py-0.5">
+                  <div key={ip.ip} className="flex justify-between text-xs py-0.5 items-center">
+                    <div className="flex items-center gap-2 min-w-0">
                     <span className="font-mono">{ip.ip}</span>
-                    <span className="text-base-content/40">{ip.attempts} attempts</span>
+                      {ip.attempts >= 10 && (
+                        <span className="badge badge-error badge-xs whitespace-nowrap">Suspicious</span>
+                      )}
+                      {ip.attempts >= 5 && ip.attempts < 10 && (
+                        <span className="badge badge-warning badge-xs whitespace-nowrap">Warning</span>
+                      )}
+                  </div>
+                    <span className={`text-base-content/40 ${ip.attempts >= 10 ? 'text-error font-bold' : ''}`}>{ip.attempts} attempts</span>
                   </div>
                 ))}
               </div>
@@ -574,6 +687,35 @@ export function NodeDetailPage() {
                 if (port) createAction.mutate({ nodeId, actionType: 'ufw_deny_port', params: { port: parseInt(port), protocol: 'tcp' } })
               }}
             />
+            {report?.tailscale?.running && (
+              <>
+            <ActionButton
+                  label="Restrict to Team"
+                  icon={Users}
+              onClick={() => {
+                    const tag = prompt('Tailscale tag to restrict (e.g., prod, internal):')
+                    if (tag) createAction.mutate({ nodeId, actionType: 'tailscale_restrict', params: { tag } })
+              }}
+            />
+            <ActionButton
+                  label="Require MFA"
+                  icon={UserCheck}
+              onClick={() => {
+                    createAction.mutate({ nodeId, actionType: 'tailscale_require_mfa', params: {} })
+              }}
+            />
+              </>
+            )}
+            {report?.cloudflare_tunnel?.running && (
+            <ActionButton
+                label="Expose Privately"
+                icon={Eye}
+              onClick={() => {
+                  const hostname = prompt('Hostname to expose privately via Cloudflare:')
+                  if (hostname) createAction.mutate({ nodeId, actionType: 'cloudflare_expose_privately', params: { hostname } })
+              }}
+            />
+            )}
           </div>
         </Section>
       )}

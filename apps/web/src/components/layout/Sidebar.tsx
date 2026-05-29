@@ -7,11 +7,15 @@ import {
   LogOut,
   BarChart3,
   Shield,
+  Share2,
+  FileText,
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: BarChart3 },
+  { path: '/graph', label: 'Graph', icon: Share2 },
+  { path: '/reports', label: 'Reports', icon: FileText },
   { path: '/nodes', label: 'Nodes', icon: Server },
   { path: '/incidents', label: 'Incidents', icon: AlertTriangle },
   { path: '/policies', label: 'Policies', icon: Shield },

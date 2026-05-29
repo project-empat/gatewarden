@@ -144,15 +144,15 @@ See [Deployment](deployment.md).
  [x] API token configuration in settings
  [x] Tunnel listing from dashboard
  [x] Tunnel health monitoring
-- [ ] "Expose privately" action
+ [x] "Expose privately" action
 
 ### Tailscale Integration
 
  [x] API key configuration
  [x] Node listing from dashboard
-- [ ] ACL inspection alerts
-- [ ] "Restrict to team" visibility
-- [ ] "Require MFA" check
+ [x] ACL inspection alerts
+ [x] "Restrict to team" visibility
+ [x] "Require MFA" check
 
 ---
 
@@ -178,16 +178,15 @@ See [Deployment](deployment.md).
 
 - [x] Alert feed in incidents (via agent report analysis)
 - [x] Decision count per node (dashboard + node detail)
-- [x] Bouncer status per node
-- [ ] Geo-IP / suspicious IP highlighting
+ [x] Bouncer status per node
+- [x] Geo-IP / suspicious IP highlighting
 
 ### Fail2Ban Dashboard Integration — [full spec](fail2ban-features.md)
 
 - [x] Jail list per node (node detail page)
 - [x] Per-jail detail view with ban/unban actions
 - [x] Unban IP action from UI
-- [x] Interactive ban/unban per jail
-- [ ] Whitelist management UI
+- [x] Whitelist management UI
 - [x] Incident generation from Fail2Ban events (via report analysis)
 - [x] Policy integration (auto-create actions for matched incidents)
 
@@ -215,23 +214,23 @@ See [Deployment](deployment.md).
 
 ### Infrastructure Security Graph
 
-- [ ] Relationship mapping between entities
-- [ ] Visual graph (internet → tunnel → host → container → service)
-- [ ] Click-through from graph nodes to details
-- [ ] Risk path highlighting
+- [x] Relationship mapping between entities
+- [x] Visual graph (internet → tunnel → host → container → service)
+- [x] Click-through from graph nodes to details
+- [x] Risk path highlighting
 
 ### Dashboard Enhancements
 
-- [ ] Security score calculation
-- [ ] Exposed services aggregate view
-- [ ] Attack timeline
-- [ ] Connectivity map
+- [x] Security score calculation
+- [x] Exposed services aggregate view
+- [x] Attack timeline
+- [x] Connectivity map
 
 ### Reporting
 
-- [ ] Security posture reports
-- [ ] Incident summary
-- [ ] Node health overview
+ [x] Security posture reports
+ [x] Incident summary
+ [x] Node health overview
 
 ---
 

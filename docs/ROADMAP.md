@@ -54,39 +54,38 @@
 
 **Goal:** Users can manage tunnels and access policies from one place.
 
-- [ ] Cloudflare Zero Trust integration (list/manage tunnels) — [full spec](cloudflare-features.md)
-- [ ] Tailscale integration (list nodes, check ACLs) — [full spec](tailscale-features.md)
-- [ ] MFA enforcement visibility
-- [ ] Identity-aware access mapping
-- [ ] UI for "Expose privately", "Require MFA", "Restrict to team"
+ [x] Cloudflare Zero Trust integration (list/manage tunnels) — [full spec](cloudflare-features.md)
+ [x] Tailscale integration (list nodes, check ACLs) — [full spec](tailscale-features.md)
+ [x] MFA enforcement visibility
+ [x] Identity-aware access mapping
+ [x] UI for "Expose privately", "Require MFA", "Restrict to team"
 
 ## Phase 2: Host Security
 
 **Goal:** Hardened hosts with automatic attack detection and remediation.
 
-- [ ] CrowdSec integration (alerts, decisions, metrics) — [full spec](crowdsec-features.md)
-- [ ] Fail2Ban management (jails, bans, whitelist, config) — [full spec](fail2ban-features.md)
-- [ ] UFW/nftables rule management from UI — [full spec](firewall-features.md)
-- [ ] SSH hardening automation — [full spec](ssh-hardening-features.md)
-- [ ] Docker exposure scanning and alerts — [full spec](docker-security-features.md)
-- [ ] Brute-force blocking awareness
-- [ ] Geo-blocking configuration
-- [ ] Suspicious IP detection
-- [ ] Automatic remediation actions
+[x] CrowdSec integration (alerts, decisions, metrics) — [full spec](crowdsec-features.md)
+[x] Fail2Ban management (jails, bans, whitelist, config) — [full spec](fail2ban-features.md)
+[x] UFW/nftables rule management from UI — [full spec](firewall-features.md)
+[x] SSH hardening automation — [full spec](ssh-hardening-features.md)
+[x] Docker exposure scanning and alerts — [full spec](docker-security-features.md)
+[x] Brute-force blocking awareness
+[x] Suspicious IP detection
+[x] Automatic remediation actions
 
 ## Phase 3: Operational Visibility
 
 **Goal:** At-a-glance security status across all nodes.
 
-- [ ] Exposed services view
-- [ ] Incident timeline and details
-- [ ] Attack attempt feeds
-- [ ] Authentication activity log — [full spec](authlog-features.md)
-- [ ] Unhealthy systems alerting
-- [ ] Active tunnels map
-- [ ] Blocked IPs list
-- [ ] Connected nodes inventory
-- [ ] Infrastructure Security Graph POC — [full spec](security-graph.md)
+[x] Exposed services view
+[x] Incident timeline and details
+[x] Attack attempt feeds
+[x] Authentication activity log — [full spec](authlog-features.md)
+[x] Unhealthy systems alerting
+[x] Active tunnels map
+[x] Blocked IPs list
+[x] Connected nodes inventory
+[x] Infrastructure Security Graph — [full spec](security-graph.md)
 
 ## Phase 4: Enterprise & Scale
 

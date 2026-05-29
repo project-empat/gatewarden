@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { useEffect, useRef } from 'react'
 import {
   Server,
   AlertTriangle,
@@ -9,7 +10,14 @@ import {
   Users,
   Wifi,
   XCircle,
+  Activity,
+  Clock,
+  Share2,
+  ShieldCheck,
+  ShieldAlert,
+  ShieldX,
 } from 'lucide-react'
+import cytoscape from 'cytoscape'
 import { api } from '@/api/client'
 
 interface Stats {
@@ -69,6 +77,78 @@ function InfoBadge({ good, label }: { good: boolean; label: string }) {
   )
 }
 
+// Event type for the timeline
+interface TimelineEvent {
+  id: string
+  node_id: string
+  type: string
+  payload: string
+  created_at: string
+}
+
+// Compute a security score from 0-100 based on the summary
+function computeSecurityScore(s: SecuritySummary): { score: number; label: string; Icon: any; color: string } {
+  let deductions = 0
+  deductions += s.exposed_ssh * 15
+  deductions += s.password_auth_ssh * 20
+  deductions += s.docker_exposed * 25
+  deductions += s.open_incidents * 5
+  deductions += s.high_severity * 10
+  const score = Math.max(0, Math.min(100, 100 - deductions))
+
+  if (score >= 80) return { score, label: 'Good', Icon: ShieldCheck, color: 'text-success' }
+  if (score >= 50) return { score, label: 'Warning', Icon: ShieldAlert, color: 'text-warning' }
+  return { score, label: 'Critical', Icon: ShieldX, color: 'text-error' }
+}
+
+// Mini connectivity graph widget
+function DashboardMiniGraph() {
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  const { data: graphData } = useQuery({
+    queryKey: ['graph'],
+    queryFn: () => api.get('api/graph').json(),
+    refetchInterval: 60_000,
+  })
+
+  useEffect(() => {
+    if (!containerRef.current || !graphData) return
+    const resp = graphData as { elements: Array<{ data: Record<string, unknown> }> }
+    if (!resp.elements || resp.elements.length === 0) return
+
+    const cy = cytoscape({
+      container: containerRef.current,
+      elements: resp.elements.map((el) => ({
+        group: el.data.source && el.data.target ? ('edges' as const) : ('nodes' as const),
+        data: el.data,
+      })),
+      style: [
+        { selector: 'node', style: { label: 'data(label)', color: '#9ca3af', 'font-size': '9px', 'text-valign': 'bottom', 'text-outline-width': 2, 'text-outline-color': '#1f2937', 'background-color': '#1e293b', 'border-color': '#475569', 'border-width': 1.5, width: 20, height: 20 }},
+        { selector: 'node[type = "internet"]', style: { 'background-color': '#4b5563', 'border-color': '#6b7280', width: 30, height: 30 }},
+        { selector: 'node[type = "node"]', style: { 'background-color': '#1e40af', 'border-color': '#3b82f6', width: 25, height: 25 }},
+        { selector: 'node[type = "service"][status = "public"]', style: { 'border-color': '#ef4444', 'border-width': 3 }},
+        { selector: 'edge', style: { width: 1, 'line-color': '#374151', 'target-arrow-shape': 'triangle', 'arrow-scale': 0.8, 'curve-style': 'bezier' }},
+      ],
+      layout: { name: 'breadthfirst', directed: true, spacingFactor: 1.0, animate: true, animationDuration: 300 },
+      userZoomingEnabled: false, userPanningEnabled: false, autolock: true,
+    } as any)
+
+    return () => { cy.destroy() }
+  }, [graphData])
+
+  if (!graphData) return null
+
+  return (
+    <div className="bg-base-100 rounded-xl border border-base-content/5 overflow-hidden">
+      <div className="px-5 py-3 border-b border-base-content/5 flex items-center gap-2">
+        <Share2 className="w-4 h-4 text-base-content/40" />
+        <h2 className="font-semibold text-sm">Connectivity Map</h2>
+      </div>
+      <div ref={containerRef} className="w-full h-48" />
+    </div>
+  )
+}
+
 export function DashboardPage() {
   const { data: stats, isLoading } = useQuery<Stats>({
     queryKey: ['dashboard-stats'],
@@ -115,6 +195,18 @@ export function DashboardPage() {
     retry: false,
   })
 
+  // Timeline events
+  const { data: timelineEvents } = useQuery<TimelineEvent[]>({
+    queryKey: ['events-history'],
+    queryFn: () => api.get('api/events/history').json(),
+    refetchInterval: 30_000,
+  })
+
+  // Security events for the timeline (filter security-relevant types)
+  const securityEvents = (timelineEvents || []).filter((e) =>
+    ['auth_failure', 'ssh_brute_force', 'ssh_publicly_exposed', 'ssh_password_auth_enabled',
+     'docker_socket_exposed', 'agent_report', 'attack_detected'].includes(e.type)
+  ).slice(0, 10)
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -159,6 +251,81 @@ export function DashboardPage() {
 
       {/* Security Summary Row */}
       {secSummary && (
+      <>
+      {/* Security Score */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="bg-base-100 rounded-xl p-5 border border-base-content/5 flex items-center gap-4">
+          {(() => {
+            const sc = computeSecurityScore(secSummary)
+            const Icon = sc.Icon
+            return (
+              <>
+                <div className={`p-3 rounded-full ${sc.color.replace('text', 'bg')}/10`}>
+                  <Icon className={`w-8 h-8 ${sc.color}`} />
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs text-base-content/40 mb-1">Security Score</p>
+                  <div className="flex items-baseline gap-2">
+                    <span className={`text-3xl font-bold ${sc.color}`}>{sc.score}</span>
+                    <span className={`text-sm font-medium ${sc.color}`}>/ 100</span>
+                  </div>
+                  <div className="w-full bg-base-200 rounded-full h-2 mt-2">
+                    <div
+                      className={`h-2 rounded-full transition-all duration-500 ${
+                        sc.score >= 80 ? 'bg-success' : sc.score >= 50 ? 'bg-warning' : 'bg-error'
+                      }`}
+                      style={{ width: `${sc.score}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-base-content/50 mt-1">
+                    {sc.label} &middot; {secSummary.online_nodes}/{secSummary.total_nodes} nodes online
+                  </p>
+                </div>
+              </>
+            )
+          })()}
+        </div>
+
+        {/* Attack Timeline */}
+        <div className="bg-base-100 rounded-xl border border-base-content/5 overflow-hidden">
+          <div className="px-5 py-3 border-b border-base-content/5 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Activity className="w-4 h-4 text-base-content/40" />
+              <h2 className="font-semibold text-sm">Recent Activity</h2>
+            </div>
+            <span className="text-xs text-base-content/30">{securityEvents.length} events</span>
+          </div>
+          {securityEvents.length === 0 ? (
+            <div className="p-5 text-center">
+              <Clock className="w-6 h-6 mx-auto text-base-content/20 mb-1" />
+              <p className="text-xs text-base-content/50">No recent security events</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-base-content/5 max-h-48 overflow-y-auto">
+              {securityEvents.map((ev) => (
+                <div key={ev.id} className="px-5 py-2.5 flex items-center gap-3 text-sm">
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${
+                    ev.type.includes('brute') || ev.type.includes('attack') ? 'bg-error' : 'bg-warning'
+                  }`} />
+                  <span className="text-xs text-base-content/40 w-16 shrink-0 font-mono">
+                    {new Date(ev.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                  <span className="text-xs flex-1 truncate">
+                    {ev.type.replace(/_/g, ' ')}
+                  </span>
+                  <span className="text-xs text-base-content/30 font-mono truncate max-w-[80px]">
+                    {ev.node_id?.slice(0, 8)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Dashboard Mini Graph */}
+      <DashboardMiniGraph />
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-base-100 rounded-xl p-4 border border-base-content/5">
             <p className="text-xs text-base-content/40 mb-1">Exposed Services</p>
@@ -228,6 +395,7 @@ export function DashboardPage() {
             </div>
           </div>
         </div>
+      </>
       )}
 
       {/* Cloudflare Tunnel Widget */}
