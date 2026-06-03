@@ -49,8 +49,8 @@ services:
 
   web:
     build:
-      context: ../apps/web
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: apps/web/Dockerfile
     ports:
       - "${GATEWARDEN_WEB_PORT:-8085}:80"
     depends_on:
