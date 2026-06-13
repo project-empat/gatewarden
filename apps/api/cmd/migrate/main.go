@@ -13,7 +13,7 @@ import (
 func main() {
 	dsn := os.Getenv("GATEWARDEN_DB_DSN")
 	if dsn == "" {
-		dsn = "postgres://gatewarden:gatewarden@localhost:5432/gatewarden?sslmode=disable"
+		dsn = "postgres://gatewarden:gatewarden@localhost:5432/gatewarden?sslmode=disable&connect_timeout=10"
 	}
 
 	args := os.Args[1:]
@@ -40,15 +40,26 @@ func main() {
 func findMigrationsDir() string {
 	candidates := []string{
 		"/migrations",
-		"migrations",
 		"../../migrations",
 		"../../../migrations",
+		"migrations",
 	}
 	for _, d := range candidates {
 		abs, _ := filepath.Abs(d)
-		if info, err := os.Stat(abs); err == nil && info.IsDir() {
-			return abs
+		info, err := os.Stat(abs)
+		if err != nil || !info.IsDir() {
+			continue
+		}
+		entries, err := os.ReadDir(abs)
+		if err != nil {
+			continue
+		}
+		for _, e := range entries {
+			if !e.IsDir() {
+				return abs
+			}
 		}
 	}
-	return "migrations"
+	log.Fatal("no migrations directory with SQL files found")
+	return ""
 }

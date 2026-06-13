@@ -12,8 +12,8 @@ type Config struct {
 
 func Load() (*Config, error) {
 	return &Config{
-		Port:           getEnv("GATEWARDEN_PORT", "8080"),
-		DatabaseDSN:    getEnv("GATEWARDEN_DB_DSN", "postgres://gatewarden:gatewarden@localhost:5432/gatewarden?sslmode=disable"),
+		Port:           getEnv("GATEWARDEN_PORT", "8085"),
+		DatabaseDSN:    getEnv("GATEWARDEN_DB_DSN", "postgres://gatewarden:gatewarden@localhost:5432/gatewarden?sslmode=disable&connect_timeout=10"),
 		JWTSecret:      getEnv("GATEWARDEN_JWT_SECRET", "dev-secret-change-in-production"),
 		LogLevel:       getEnv("GATEWARDEN_LOG_LEVEL", "info"),
 		AllowedOrigins: getEnv("GATEWARDEN_ALLOWED_ORIGINS", "*"),
