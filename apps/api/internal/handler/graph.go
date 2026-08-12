@@ -17,9 +17,11 @@ func NewGraphHandler(svc *service.GraphService) *GraphHandler {
 	return &GraphHandler{svc: svc}
 }
 
-// Full returns the complete infrastructure security graph.
+// Full returns a page of the infrastructure security graph. Supports
+// limit/offset query parameters for large infrastructures.
 func (h *GraphHandler) Full(w http.ResponseWriter, r *http.Request) {
-	graph, err := h.svc.GetFullGraph(r.Context())
+	limit, offset := parsePagination(r, 200, 0)
+	graph, err := h.svc.GetFullGraph(r.Context(), limit, offset)
 	if err != nil {
 		http.Error(w, `{"error":"failed to build graph"}`, http.StatusInternalServerError)
 		return

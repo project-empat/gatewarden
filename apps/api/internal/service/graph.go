@@ -42,9 +42,12 @@ type GraphElemData struct {
 	Color  string `json:"color,omitempty"`
 }
 
-// GraphResponse is the Cytoscape.js elements array.
+// GraphResponse is the Cytoscape.js elements array. Total is the number of
+// nodes available (before pagination), so clients can page through large
+// infrastructures instead of loading everything at once.
 type GraphResponse struct {
 	Elements []GraphElem `json:"elements"`
+	Total    int         `json:"total"`
 }
 
 // summaryFields captures top-level fields from an agent report.
@@ -58,9 +61,28 @@ type agentReportSummary struct {
 	Ports     []interface{}          `json:"ports"`
 }
 
-// GetFullGraph returns the complete infrastructure security graph.
-func (s *GraphService) GetFullGraph(ctx context.Context) (*GraphResponse, error) {
+// graphMaxLimit caps how many nodes a single graph page can return.
+const graphMaxLimit = 500
+
+// GetFullGraph returns a page of the infrastructure security graph. Nodes
+// are paginated with limit/offset; every element on the page (services,
+// containers, edges, incidents) is derived from the selected nodes, so the
+// page is internally consistent.
+func (s *GraphService) GetFullGraph(ctx context.Context, limit, offset int) (*GraphResponse, error) {
 	var elems []GraphElem
+
+	if limit <= 0 || limit > graphMaxLimit {
+		limit = 200
+	}
+	if offset < 0 {
+		offset = 0
+	}
+
+	// -- Count total nodes for pagination metadata --
+	var total int
+	if err := s.db.QueryRow(ctx, `SELECT COUNT(*) FROM nodes WHERE status != 'deleted'`).Scan(&total); err != nil {
+		return nil, fmt.Errorf("count graph nodes: %w", err)
+	}
 
 	// -- Internet node (always present) --
 	elems = append(elems, GraphElem{Data: GraphElemData{
@@ -90,7 +112,8 @@ func (s *GraphService) GetFullGraph(ctx context.Context) (*GraphResponse, error)
 		) ar ON true
 		WHERE n.status != 'deleted'
 		ORDER BY n.hostname
-	`)
+		LIMIT $1 OFFSET $2
+	`, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("query graph nodes: %w", err)
 	}
@@ -545,7 +568,7 @@ func (s *GraphService) GetFullGraph(ctx context.Context) (*GraphResponse, error)
 
 // GetNodeGraph returns the sub-graph for a specific node (node + 1-hop neighbors).
 func (s *GraphService) GetNodeGraph(ctx context.Context, nodeID string) (*GraphResponse, error) {
-	full, err := s.GetFullGraph(ctx)
+	full, err := s.GetFullGraph(ctx, graphMaxLimit, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -602,7 +625,7 @@ func (s *GraphService) GetGraphStats(ctx context.Context) (*GraphStats, error) {
 	stats := &GraphStats{}
 
 	// Count nodes by type from the full graph
-	graph, err := s.GetFullGraph(ctx)
+	graph, err := s.GetFullGraph(ctx, graphMaxLimit, 0)
 	if err != nil {
 		return nil, err
 	}
