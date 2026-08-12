@@ -193,16 +193,6 @@ func (s *AgentService) Heartbeat(ctx context.Context, nodeID string) error {
 
 // ValidateAPIKey checks an API key and returns the associated node ID.
 func (s *AgentService) ValidateAPIKey(ctx context.Context, key string) (string, error) {
-	var nodeID, hash string
-	err := s.db.QueryRow(ctx,
-		`SELECT a.node_id, a.api_key_hash FROM agents a JOIN nodes n ON a.node_id = n.id WHERE n.status != 'deleted'`,
-	).Scan(&nodeID, &hash)
-	if err != nil {
-		return "", fmt.Errorf("no agents found")
-	}
-
-	// This is inefficient for many agents — scan all rows
-	// For MVP, iterate through all agents
 	rows, err := s.db.Query(ctx, `SELECT node_id, api_key_hash FROM agents`)
 	if err != nil {
 		return "", fmt.Errorf("query agents: %w", err)
@@ -210,6 +200,7 @@ func (s *AgentService) ValidateAPIKey(ctx context.Context, key string) (string, 
 	defer rows.Close()
 
 	for rows.Next() {
+		var nodeID, hash string
 		if err := rows.Scan(&nodeID, &hash); err != nil {
 			continue
 		}
@@ -318,10 +309,10 @@ func (s *AgentService) evaluatePolicies(ctx context.Context, nodeID, eventType, 
 	defer rows.Close()
 
 	type policyMatch struct {
-		id      string
-		name    string
+		id       string
+		name     string
 		triggers string
-		actions string
+		actions  string
 	}
 	var matches []policyMatch
 

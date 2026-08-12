@@ -149,6 +149,11 @@ func (e *ActionExecutor) request(method, path string, reqBody []byte) ([]byte, e
 	return buf.Bytes(), nil
 }
 
+// SetNodeID stores the node ID received from registration.
+func (e *ActionExecutor) SetNodeID(id string) {
+	e.nodeID = id
+}
+
 // Close cleans up.
 func (e *ActionExecutor) Close() {
 	e.client.CloseIdleConnections()

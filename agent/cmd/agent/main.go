@@ -47,6 +47,7 @@ func main() {
 
 	// Action executor for remediation commands
 	exec := reporter.NewActionExecutor(*serverURL, *apiKey, hostname)
+	exec.SetNodeID(rep.GetNodeID())
 
 	// Signal handling for graceful shutdown
 	sigCh := make(chan os.Signal, 1)
@@ -73,6 +74,8 @@ func main() {
 				log.Printf("heartbeat failed: %v", err)
 			}
 		case <-actionTicker.C:
+			// Sync node ID in case re-registration happened
+			exec.SetNodeID(rep.GetNodeID())
 			if err := exec.PollAndExecute(); err != nil {
 				log.Printf("action poll failed: %v", err)
 			}

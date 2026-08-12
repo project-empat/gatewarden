@@ -3,6 +3,7 @@ package ssh
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"strconv"
@@ -95,7 +96,13 @@ func parseConfigFile(s *proto.SSHStatus) (*proto.SSHStatus, error) {
 	}
 	defer f.Close()
 
-	scanner := bufio.NewScanner(f)
+	return parseSSHDConfig(s, f)
+}
+
+// parseSSHDConfig parses an SSH config from the given reader.
+// Exposed for testing.
+func parseSSHDConfig(s *proto.SSHStatus, r io.Reader) (*proto.SSHStatus, error) {
+	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if strings.HasPrefix(line, "#") || line == "" {

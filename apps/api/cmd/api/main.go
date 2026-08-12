@@ -28,6 +28,10 @@ func main() {
 	}
 	defer log.Sync()
 
+	if cfg.JWTSecret == "dev-secret-change-in-production" {
+		log.Warnw("Using default JWT secret — set GATEWARDEN_JWT_SECRET for production")
+	}
+
 	db, err := repository.Connect(cfg.DatabaseDSN)
 	if err != nil {
 		log.Fatalw("failed to connect to database", "error", err)

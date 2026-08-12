@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gatewarden/agent/pkg/proto"
 )
@@ -37,18 +38,31 @@ func Gather() (*proto.SystemHealth, error) {
 // --- CPU ---
 
 func cpuPercent() (float64, error) {
-	ct, err := readProcStat()
+	ct1, err := readProcStat()
 	if err != nil {
 		return 0, err
 	}
-	total := ct.user + ct.nice + ct.system + ct.idle + ct.iowait + ct.irq + ct.softirq + ct.steal
-	idle := ct.idle + ct.iowait
 
-	if total == 0 {
+	time.Sleep(200 * time.Millisecond)
+
+	ct2, err := readProcStat()
+	if err != nil {
+		return 0, err
+	}
+
+	total1 := ct1.user + ct1.nice + ct1.system + ct1.idle + ct1.iowait + ct1.irq + ct1.softirq + ct1.steal
+	idle1 := ct1.idle + ct1.iowait
+	total2 := ct2.user + ct2.nice + ct2.system + ct2.idle + ct2.iowait + ct2.irq + ct2.softirq + ct2.steal
+	idle2 := ct2.idle + ct2.iowait
+
+	totalDelta := total2 - total1
+	idleDelta := idle2 - idle1
+
+	if totalDelta == 0 {
 		return 0, nil
 	}
 
-	return float64(total-idle) / float64(total) * 100.0, nil
+	return float64(totalDelta-idleDelta) / float64(totalDelta) * 100.0, nil
 }
 
 type cpuTimes struct {

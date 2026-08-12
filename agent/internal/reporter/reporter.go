@@ -37,6 +37,11 @@ func (r *Reporter) SetNodeID(id string) {
 	r.nodeID = id
 }
 
+// GetNodeID returns the current node ID.
+func (r *Reporter) GetNodeID() string {
+	return r.nodeID
+}
+
 // SendReport sends a full agent status report to the API.
 func (r *Reporter) SendReport(report *proto.AgentReport) error {
 	report.NodeID = r.nodeID

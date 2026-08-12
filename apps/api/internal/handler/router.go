@@ -22,7 +22,7 @@ func NewRouter(svc *service.Service, log *zap.SugaredLogger, cfg *config.Config,
 	r.Use(middleware.Logging(log))
 	r.Use(chimw.Recoverer)
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{cfg.AllowedOrigins},
+		AllowedOrigins:   cfg.AllowedOrigins,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
 		AllowCredentials: true,

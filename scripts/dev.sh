@@ -4,7 +4,7 @@ set -euo pipefail
 echo "=== Gatewarden Development Environment ==="
 
 # Find an existing PostgreSQL container (handles Docker Swarm naming like dev-postgre_db.1.xxx)
-PG_CONTAINER=$(docker ps --filter 'name=dev-postgre' --format '{{.Names}}' | head -1)
+PG_CONTAINER=$(docker ps --filter 'name=dev-postgre_db' --format '{{.Names}}' | head -1)
 
 if [ -z "$PG_CONTAINER" ]; then
   echo "Starting PostgreSQL..."
@@ -50,7 +50,7 @@ echo "Starting web dev server..."
 
 echo "Development environment started!"
 echo "  API:  http://localhost:8085"
-echo "  Web:  http://localhost:5173"
+echo "  Web:  http://localhost:5174"
 echo "  DB:   postgres://gatewarden:gatewarden@localhost:${DB_PORT}/gatewarden"
 
 wait
