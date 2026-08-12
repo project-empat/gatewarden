@@ -15,6 +15,7 @@ type Service struct {
 	Action *ActionService
 	Graph  *GraphService
 	Report *ReportService
+	License *LicenseService
 }
 
 func New(db *pgxpool.Pool, log *zap.SugaredLogger, jwtSecret string) *Service {
@@ -29,5 +30,6 @@ func New(db *pgxpool.Pool, log *zap.SugaredLogger, jwtSecret string) *Service {
 		Action: NewActionService(db, log),
 		Graph:  NewGraphService(db),
 		Report: NewReportService(db),
+		License: NewLicenseService(db, log),
 	}
 }

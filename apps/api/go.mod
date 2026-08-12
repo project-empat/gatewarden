@@ -13,6 +13,13 @@ require (
 	golang.org/x/crypto v0.28.0
 )
 
+// The enterprise module is provided locally by the OSS stub in the default
+// workspace. The enterprise workspace (GOWORK=go.work.enterprise) overrides
+// this with the private gatewarden-enterprise repository.
+require github.com/project-empat/gatewarden-enterprise v0.0.0
+
+replace github.com/project-empat/gatewarden-enterprise => ../../modules/enterprise_stub
+
 require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect

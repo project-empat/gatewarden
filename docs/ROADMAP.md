@@ -5,6 +5,7 @@
 **Goal:** Working agent + API + basic UI that proves the concept.
 
 ### Agent
+
 - [x] Go-based Linux agent (static binary)
 - [x] Ubuntu/Debian support, amd64 + arm64
 - [x] Docker discovery (list containers, inspect ports)
@@ -20,6 +21,7 @@
 - [x] Agent reconnection on network loss
 
 ### Backend
+
 - [x] Golang monolith (Chi router)
 - [x] PostgreSQL database (sqlc + Goose migrations)
 - [x] Agent registration and authentication
@@ -30,6 +32,7 @@
 - [x] Initial schema: nodes, incidents, events, policies, settings
 
 ### Frontend
+
 - [x] Vite + React + TypeScript scaffold
 - [x] TanStack Router + TanStack Query
 - [x] TailwindCSS + daisyUI + lucide icons
@@ -45,6 +48,7 @@
 - [x] Loading/empty states across pages
 
 ### Deployment
+
 - [x] Docker Compose (API + DB + web proxy)
 - [x] `install.sh` one-liner for agent (supports amd64/arm64)
 - [x] systemd service for agent
@@ -105,7 +109,7 @@
 - [ ] Delegated access
 - [ ] Advanced reporting
 - [ ] Hosted cloud control plane
-- [ ] License key enforcement
+- [x] License key enforcement
 
 ## Explicit Out-of-Scope (for now)
 

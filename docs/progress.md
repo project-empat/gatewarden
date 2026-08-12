@@ -98,6 +98,7 @@ See [Deployment](deployment.md).
 - [x] Root login setting
 - [x] Port configuration
 - [x] Public exposure flag
+
 ### auth.log / journald Parsing — [full spec](authlog-features.md)
 
 - [x] Failed SSH attempt detection
@@ -249,7 +250,7 @@ See [Deployment](deployment.md).
 - [ ] Client isolation
 - [ ] Delegated access
 - [ ] Advanced reporting
-- [ ] License key enforcement
+- [x] License key enforcement
 - [ ] Hosted cloud control plane
 
 ---

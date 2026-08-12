@@ -41,6 +41,7 @@ func NewRouter(svc *service.Service, log *zap.SugaredLogger, cfg *config.Config,
 	sseHandler := NewSSEHandler(svc.Event)
 	graphHandler := NewGraphHandler(svc.Graph)
 	reportHandler := NewReportHandler(svc.Report)
+	licenseHandler := NewLicenseHandler(svc.License)
 
 	r.Route("/api", func(r chi.Router) {
 		// Agent endpoints (API key auth for report/heartbeat)
@@ -99,6 +100,11 @@ func NewRouter(svc *service.Service, log *zap.SugaredLogger, cfg *config.Config,
 			r.Get("/reports/posture", reportHandler.Posture)
 			r.Get("/reports/incidents", reportHandler.Incidents)
 			r.Get("/reports/health", reportHandler.Health)
+
+			// License / enterprise features
+			r.Get("/license", licenseHandler.Get)
+			r.Post("/license/activate", licenseHandler.Activate)
+			r.Get("/license/features", licenseHandler.Features)
 		})
 	})
 
