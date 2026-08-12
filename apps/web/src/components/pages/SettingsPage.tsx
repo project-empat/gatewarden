@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Settings as SettingsIcon, Save, Cloud, Users } from 'lucide-react'
 import { api } from '@/api/client'
+import { LicenseCard } from '@/components/LicenseCard'
+import { useAuthStore } from '@/stores/authStore'
 import { useEffect, useState } from 'react'
 
 interface AppSettings {
@@ -15,6 +17,8 @@ interface AppSettings {
 export function SettingsPage() {
   const queryClient = useQueryClient()
   const [form, setForm] = useState<AppSettings | null>(null)
+  const user = useAuthStore((s) => s.user)
+  const isAdmin = user?.role === 'admin'
 
   const { data: settings, isLoading } = useQuery<AppSettings>({
     queryKey: ['settings'],
@@ -50,11 +54,20 @@ export function SettingsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Settings</h1>
-          <p className="text-base-content/60 text-sm mt-1">System configuration</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-2xl font-bold">Settings</h1>
+            <p className="text-base-content/60 text-sm mt-1">System configuration</p>
+          </div>
+          {user && (
+            <span
+              className={`badge badge-sm ${isAdmin ? 'badge-primary' : 'badge-ghost'}`}
+            >
+              {isAdmin ? 'admin' : 'viewer'}
+            </span>
+          )}
         </div>
-        {form && (
+        {form && isAdmin && (
           <button
             className="btn btn-primary btn-sm"
             onClick={() => updateMutation.mutate(form)}
@@ -71,6 +84,15 @@ export function SettingsPage() {
       )}
       {updateMutation.isError && (
         <div className="alert alert-error text-sm">Failed to save settings.</div>
+      )}
+
+      {/* License */}
+      <LicenseCard />
+
+      {!isAdmin && (
+        <div className="alert alert-info text-sm">
+          You have view-only access. Contact an admin to change settings.
+        </div>
       )}
 
       {/* General Settings */}

@@ -11,11 +11,12 @@ import (
 )
 
 type ActionHandler struct {
-	svc *service.ActionService
+	svc   *service.ActionService
+	audit *service.AuditService
 }
 
-func NewActionHandler(svc *service.ActionService) *ActionHandler {
-	return &ActionHandler{svc: svc}
+func NewActionHandler(svc *service.ActionService, audit *service.AuditService) *ActionHandler {
+	return &ActionHandler{svc: svc, audit: audit}
 }
 
 // CreateActionRequest for user-initiated actions.
@@ -44,6 +45,7 @@ func (h *ActionHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	_ = h.audit.Record(r.Context(), auditEvent(r, middleware.UserID(r.Context()), "actions.create", "actions", action.ID, "success", ""))
 	writeJSON(w, http.StatusCreated, action)
 }
 

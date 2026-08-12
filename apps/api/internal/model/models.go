@@ -6,6 +6,7 @@ type User struct {
 	ID           string    `json:"id"`
 	Email        string    `json:"email"`
 	PasswordHash string    `json:"-"`
+	Role         string    `json:"role"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }
@@ -114,4 +115,28 @@ type AgentAction struct {
 	Status      string     `json:"status"`
 	CreatedAt   time.Time  `json:"created_at"`
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
+}
+
+// AuditEvent is a single entry in the audit trail.
+type AuditEvent struct {
+	ID         string         `json:"id"`
+	UserID     string         `json:"user_id"`
+	Action     string         `json:"action"`
+	Resource   string         `json:"resource"`
+	ResourceID string         `json:"resource_id,omitempty"`
+	Severity   string         `json:"severity"`
+	SourceIP   string         `json:"source_ip,omitempty"`
+	Metadata   map[string]any `json:"metadata,omitempty"`
+	Outcome    string         `json:"outcome"`
+	Error      string         `json:"error,omitempty"`
+	Timestamp  time.Time      `json:"timestamp"`
+}
+
+// AuditQuery filters the audit trail.
+type AuditQuery struct {
+	Action   string `json:"action"`
+	UserID   string `json:"user_id"`
+	Resource string `json:"resource"`
+	Limit    int    `json:"limit"`
+	Offset   int    `json:"offset"`
 }

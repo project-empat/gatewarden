@@ -29,19 +29,21 @@ func NewRouter(svc *service.Service, log *zap.SugaredLogger, cfg *config.Config,
 		MaxAge:           300,
 	}))
 
-	authHandler := NewAuthHandler(svc.Auth)
+	authHandler := NewAuthHandler(svc.Auth, svc.Audit)
 	agentHandler := NewAgentHandler(svc.Agent)
 	nodeHandler := NewNodeHandler(svc.Node)
 	incidentHandler := NewIncidentHandler(db)
-	policyHandler := NewPolicyHandler(svc.Policy)
-	settingsHandler := NewSettingsHandler(svc.Settings)
+	policyHandler := NewPolicyHandler(svc.Policy, svc.Audit)
+	settingsHandler := NewSettingsHandler(svc.Settings, svc.Audit)
 	cloudflareHandler := NewCloudflareHandler(svc.Settings)
 	tailscaleHandler := NewTailscaleHandler(svc.Settings)
-	actionHandler := NewActionHandler(svc.Action)
+	actionHandler := NewActionHandler(svc.Action, svc.Audit)
 	sseHandler := NewSSEHandler(svc.Event)
 	graphHandler := NewGraphHandler(svc.Graph)
 	reportHandler := NewReportHandler(svc.Report)
-	licenseHandler := NewLicenseHandler(svc.License)
+	licenseHandler := NewLicenseHandler(svc.License, svc.Audit)
+	userHandler := NewUserHandler(svc.User, svc.Audit)
+	auditHandler := NewAuditHandler(svc.Audit)
 
 	r.Route("/api", func(r chi.Router) {
 		// Agent endpoints (API key auth for report/heartbeat)
@@ -68,13 +70,20 @@ func NewRouter(svc *service.Service, log *zap.SugaredLogger, cfg *config.Config,
 
 			r.Get("/policies", policyHandler.List)
 			r.Get("/policies/{id}", policyHandler.Get)
-			r.Post("/policies", policyHandler.Create)
-			r.Put("/policies/{id}", policyHandler.Update)
-			r.Delete("/policies/{id}", policyHandler.Delete)
-			r.Post("/policies/{id}/toggle", policyHandler.Toggle)
+			r.With(middleware.Admin).Post("/policies", policyHandler.Create)
+			r.With(middleware.Admin).Put("/policies/{id}", policyHandler.Update)
+			r.With(middleware.Admin).Delete("/policies/{id}", policyHandler.Delete)
+			r.With(middleware.Admin).Post("/policies/{id}/toggle", policyHandler.Toggle)
 
 			r.Get("/settings", settingsHandler.Get)
-			r.Put("/settings", settingsHandler.Update)
+			r.With(middleware.Admin).Put("/settings", settingsHandler.Update)
+
+			// Users and RBAC
+			r.With(middleware.Admin).Get("/users", userHandler.List)
+			r.With(middleware.Admin).Put("/users/{id}/role", userHandler.SetRole)
+
+			// Audit trail
+			r.Get("/audit", auditHandler.List)
 
 			// Cloudflare Integration
 			r.Get("/cloudflare/accounts", cloudflareHandler.Accounts)
@@ -86,7 +95,7 @@ func NewRouter(svc *service.Service, log *zap.SugaredLogger, cfg *config.Config,
 			r.Get("/tailscale/acl", tailscaleHandler.ACL)
 
 			// Actions (user-initiated remediation)
-			r.Post("/actions", actionHandler.Create)
+			r.With(middleware.Admin).Post("/actions", actionHandler.Create)
 
 			r.Get("/events", sseHandler.Stream)
 			r.Get("/events/history", sseHandler.History)
@@ -103,7 +112,7 @@ func NewRouter(svc *service.Service, log *zap.SugaredLogger, cfg *config.Config,
 
 			// License / enterprise features
 			r.Get("/license", licenseHandler.Get)
-			r.Post("/license/activate", licenseHandler.Activate)
+			r.With(middleware.Admin).Post("/license/activate", licenseHandler.Activate)
 			r.Get("/license/features", licenseHandler.Features)
 		})
 	})

@@ -6,16 +6,18 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/gatewarden/api/internal/middleware"
 	"github.com/gatewarden/api/internal/model"
 	"github.com/gatewarden/api/internal/service"
 )
 
 type PolicyHandler struct {
-	svc *service.PolicyService
+	svc   *service.PolicyService
+	audit *service.AuditService
 }
 
-func NewPolicyHandler(svc *service.PolicyService) *PolicyHandler {
-	return &PolicyHandler{svc: svc}
+func NewPolicyHandler(svc *service.PolicyService, audit *service.AuditService) *PolicyHandler {
+	return &PolicyHandler{svc: svc, audit: audit}
 }
 
 func (h *PolicyHandler) List(w http.ResponseWriter, r *http.Request) {
@@ -55,6 +57,7 @@ func (h *PolicyHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	_ = h.audit.Record(r.Context(), auditEvent(r, middleware.UserID(r.Context()), "policies.create", "policies", created.ID, "success", ""))
 	writeJSON(w, http.StatusCreated, created)
 }
 
@@ -73,6 +76,7 @@ func (h *PolicyHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	_ = h.audit.Record(r.Context(), auditEvent(r, middleware.UserID(r.Context()), "policies.update", "policies", id, "success", ""))
 	writeJSON(w, http.StatusOK, updated)
 }
 
@@ -82,6 +86,7 @@ func (h *PolicyHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		return
 	}
+	_ = h.audit.Record(r.Context(), auditEvent(r, middleware.UserID(r.Context()), "policies.delete", "policies", id, "success", ""))
 	writeJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
 }
 
@@ -92,5 +97,6 @@ func (h *PolicyHandler) Toggle(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		return
 	}
+	_ = h.audit.Record(r.Context(), auditEvent(r, middleware.UserID(r.Context()), "policies.toggle", "policies", id, "success", ""))
 	writeJSON(w, http.StatusOK, p)
 }

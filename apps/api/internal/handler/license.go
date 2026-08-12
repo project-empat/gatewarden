@@ -5,15 +5,17 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/gatewarden/api/internal/middleware"
 	"github.com/gatewarden/api/internal/service"
 )
 
 type LicenseHandler struct {
-	svc *service.LicenseService
+	svc   *service.LicenseService
+	audit *service.AuditService
 }
 
-func NewLicenseHandler(svc *service.LicenseService) *LicenseHandler {
-	return &LicenseHandler{svc: svc}
+func NewLicenseHandler(svc *service.LicenseService, audit *service.AuditService) *LicenseHandler {
+	return &LicenseHandler{svc: svc, audit: audit}
 }
 
 // Get returns the current license (or the free default) plus build mode.
@@ -41,6 +43,7 @@ func (h *LicenseHandler) Activate(w http.ResponseWriter, r *http.Request) {
 
 	license, err := h.svc.Activate(r.Context(), req.LicenseKey)
 	if err != nil {
+		_ = h.audit.Record(r.Context(), auditEvent(r, middleware.UserID(r.Context()), "license.activate", "license", "", "error", err.Error()))
 		if errors.Is(err, service.ErrEnterpriseOnly) {
 			writeJSON(w, http.StatusForbidden, map[string]string{"error": err.Error()})
 			return
@@ -48,6 +51,7 @@ func (h *LicenseHandler) Activate(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
 		return
 	}
+	_ = h.audit.Record(r.Context(), auditEvent(r, middleware.UserID(r.Context()), "license.activate", "license", license.ID, "success", ""))
 	writeJSON(w, http.StatusOK, map[string]any{"license": license})
 }
 

@@ -237,8 +237,8 @@ See [Deployment](deployment.md).
 
 ## Phase 5: Enterprise
 
-- [ ] RBAC
-- [ ] Audit logs
+- [x] RBAC (basic admin/viewer roles, JWT role claims, admin gate)
+- [x] Audit logs (audit trail, basic querying)
 - [ ] SSO/SAML/OIDC
 - [ ] Advanced policy engine
 - [ ] Team management

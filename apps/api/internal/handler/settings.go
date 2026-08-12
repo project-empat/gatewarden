@@ -4,16 +4,18 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/gatewarden/api/internal/middleware"
 	"github.com/gatewarden/api/internal/model"
 	"github.com/gatewarden/api/internal/service"
 )
 
 type SettingsHandler struct {
-	svc *service.SettingsService
+	svc   *service.SettingsService
+	audit *service.AuditService
 }
 
-func NewSettingsHandler(svc *service.SettingsService) *SettingsHandler {
-	return &SettingsHandler{svc: svc}
+func NewSettingsHandler(svc *service.SettingsService, audit *service.AuditService) *SettingsHandler {
+	return &SettingsHandler{svc: svc, audit: audit}
 }
 
 func (h *SettingsHandler) Get(w http.ResponseWriter, r *http.Request) {
@@ -34,8 +36,10 @@ func (h *SettingsHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	settings, err := h.svc.Update(r.Context(), req)
 	if err != nil {
+		_ = h.audit.Record(r.Context(), auditEvent(r, middleware.UserID(r.Context()), "settings.update", "settings", "", "error", "update failed"))
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "internal error"})
 		return
 	}
+	_ = h.audit.Record(r.Context(), auditEvent(r, middleware.UserID(r.Context()), "settings.update", "settings", "", "success", ""))
 	writeJSON(w, http.StatusOK, settings)
 }

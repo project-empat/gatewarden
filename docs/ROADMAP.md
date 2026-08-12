@@ -95,8 +95,8 @@
 
 **Goal:** Multi-team, multi-node management with governance features.
 
-- [ ] RBAC (roles, permissions)
-- [ ] Audit logs
+- [x] RBAC (roles, permissions) — basic admin/viewer wired; advanced engine in enterprise repo
+- [x] Audit logs — trail + query API; export/streaming are enterprise
 - [ ] SSO/SAML/OIDC
 - [ ] Advanced policy engine
 - [ ] Team management
