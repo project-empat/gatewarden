@@ -111,7 +111,7 @@ gatewarden/
 ```
 Public repo:  gatewarden/           (OSS, AGPLv3)
               ├── modules/core/
-              └── modules/enterprise/  (stub — returns ErrEnterpriseOnly)
+              └── modules/enterprise_stub/  (OSS stub — returns ErrEnterpriseOnly; real impls in gatewarden-enterprise)
 
 Private repo: gatewarden-enterprise/  (commercial license)
               └── enterprise/         (real implementation)

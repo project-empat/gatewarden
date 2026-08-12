@@ -31,7 +31,7 @@ jobs:
           cd apps/api && go mod tidy
           cd ../../agent && go mod tidy
           cd ../modules/core && go mod tidy
-          cd ../enterprise && go mod tidy
+          cd ../enterprise_stub && go mod tidy
 
       - name: Build API
         run: cd apps/api && go build ./cmd/api

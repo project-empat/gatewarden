@@ -1,0 +1,22 @@
+// Enterprise workspace — replaces the OSS stub module with the private
+// gatewarden-enterprise repository. Requires the private repo checked out
+// as a sibling directory:
+//
+//	gatewarden/
+//	gatewarden-enterprise/
+//
+// Activate with:
+//
+//	GOWORK=go.work.enterprise make build-enterprise
+//	GOWORK=go.work.enterprise go build -tags enterprise ./...
+//
+// OSS builds (no GOWORK) use ./modules/enterprise_stub instead and need no
+// private checkout.
+go 1.22
+
+use (
+	./apps/api
+	./modules/core
+	./agent
+	../gatewarden-enterprise
+)

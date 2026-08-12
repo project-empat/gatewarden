@@ -27,7 +27,15 @@ build-agent-static:
 	cd agent && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o ../bin/gatewarden-agent ./cmd/agent
 
 build-enterprise:
-	cd apps/api && go build -tags enterprise -o ../../bin/api-enterprise ./cmd/api
+	GOWORK=$(CURDIR)/go.work.enterprise go build -tags enterprise -o bin/api-enterprise ./apps/api/cmd/api
+
+# Switch the Go workspace between OSS and enterprise mode.
+# Enterprise mode requires ../gatewarden-enterprise to exist (private repo).
+work-enterprise:
+	go work edit -use=./apps/api -use=./modules/core -use=./agent -use=../gatewarden-enterprise -dropuse=./modules/enterprise_stub
+
+work-oss:
+	go work edit -use=./apps/api -use=./modules/core -use=./agent -use=./modules/enterprise_stub -dropuse=../gatewarden-enterprise
 
 # ─── Test ─────────────────────────────────────────────────────────────────────
 

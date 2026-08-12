@@ -11,8 +11,9 @@ gatewarden/
 │   └── web/        # React SPA (Vite, TanStack, TailwindCSS, daisyui)
 ├── agent/          # Go Linux agent (static binary)
 ├── modules/
-│   ├── core/       # Shared core library
-│   └── enterprise/ # Enterprise features (stub in OSS)
+│   ├── core/            # Shared core library
+│   └── enterprise_stub/ # OSS stub — real impls live in the private gatewarden-enterprise repo
+├── go.work.enterprise  # Enterprise workspace (swaps in ../gatewarden-enterprise)
 ├── deploy/         # Docker Compose, systemd, install scripts
 ├── migrations/     # PostgreSQL migrations (Goose)
 └── docs/           # Documentation
@@ -104,3 +105,16 @@ AGPLv3 — see [LICENSE](LICENSE).
 ## Enterprise
 
 Enterprise features are available under a commercial license. The OSS build includes stubs — drop-in replacements that compile but return `ErrEnterpriseOnly`.
+
+The real implementations live in the private [`gatewarden-enterprise`](https://github.com/project-empat/gatewarden-enterprise) repo. To build with them locally:
+
+```bash
+# Requires the private repo checked out as a sibling directory:
+#   gatewarden/            (this repo)
+#   gatewarden-enterprise/ (private)
+make build-enterprise
+
+# Or switch the default workspace to enterprise mode
+make work-enterprise   # go.work now uses ../gatewarden-enterprise
+make work-oss          # back to OSS stub
+```
