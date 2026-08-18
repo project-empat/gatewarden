@@ -9,6 +9,7 @@ import {
   Shield,
   Share2,
   FileText,
+  Bug,
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 
@@ -18,6 +19,7 @@ const navItems = [
   { path: '/reports', label: 'Reports', icon: FileText },
   { path: '/nodes', label: 'Nodes', icon: Server },
   { path: '/incidents', label: 'Incidents', icon: AlertTriangle },
+  { path: '/vulnerabilities', label: 'Vulnerabilities', icon: Bug },
   { path: '/policies', label: 'Policies', icon: Shield },
   { path: '/settings', label: 'Settings', icon: Settings },
 ]

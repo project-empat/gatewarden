@@ -87,8 +87,8 @@ func (s *NodeService) GetLatestReport(ctx context.Context, nodeID string) (json.
 
 // NodeSecuritySummary aggregates security indicators from all nodes.
 type NodeSecuritySummary struct {
-	ExposedSSH     int `json:"exposed_ssh"`
-	DockerExposed  int `json:"docker_exposed"`
+	ExposedSSH      int `json:"exposed_ssh"`
+	DockerExposed   int `json:"docker_exposed"`
 	PasswordAuthSSH int `json:"password_auth_ssh"`
 	TotalIncidents  int `json:"total_incidents"`
 	OpenIncidents   int `json:"open_incidents"`
@@ -96,12 +96,16 @@ type NodeSecuritySummary struct {
 	OnlineNodes     int `json:"online_nodes"`
 	HighSeverity    int `json:"high_severity"`
 	// Per-node CrowdSec
-	CrowdSecNodes int `json:"crowdsec_nodes"`
+	CrowdSecNodes  int `json:"crowdsec_nodes"`
 	TotalDecisions int `json:"total_decisions"`
 	TotalAlerts    int `json:"total_alerts"`
 	// Per-node Fail2Ban
 	Fail2BanJailsTotal int `json:"fail2ban_jails_total"`
 	Fail2BanBansTotal  int `json:"fail2ban_bans_total"`
+	// File integrity + vulnerabilities (fleet-wide)
+	FIMChanges             int `json:"fim_changes"`
+	SecurityUpdatesPending int `json:"security_updates_pending"`
+	VulnerablePackages     int `json:"vulnerable_packages"`
 }
 
 // SecuritySummary collects security indicators across all nodes.
@@ -141,6 +145,14 @@ func (s *NodeService) SecuritySummary(ctx context.Context) (*NodeSecuritySummary
 	_ = s.db.QueryRow(ctx, `SELECT COUNT(*) FROM incidents`).Scan(&summary.TotalIncidents)
 	_ = s.db.QueryRow(ctx, `SELECT COUNT(*) FROM incidents WHERE status = 'open'`).Scan(&summary.OpenIncidents)
 	_ = s.db.QueryRow(ctx, `SELECT COUNT(*) FROM incidents WHERE severity IN ('critical','high') AND status = 'open'`).Scan(&summary.HighSeverity)
+
+	// File integrity + vulnerability counts (fleet-wide)
+	_ = s.db.QueryRow(ctx, `SELECT COUNT(*) FROM node_fim_files WHERE last_changed IS NOT NULL`).Scan(&summary.FIMChanges)
+	_ = s.db.QueryRow(ctx, `SELECT COALESCE(SUM(security_updates_pending),0) FROM nodes`).Scan(&summary.SecurityUpdatesPending)
+	_ = s.db.QueryRow(ctx,
+		`SELECT COUNT(*) FROM node_packages np
+		 JOIN vuln_cache vc ON vc.package = np.name AND vc.version = np.version AND vc.ecosystem = np.ecosystem
+		 WHERE vc.vulnerabilities <> '[]'`).Scan(&summary.VulnerablePackages)
 
 	// Process latest reports for security indicators
 	type reportRow struct {

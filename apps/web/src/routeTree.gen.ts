@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VulnerabilitiesRouteImport } from './routes/vulnerabilities'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as PoliciesRouteImport } from './routes/policies'
@@ -22,6 +23,11 @@ import { Route as IncidentsIndexRouteImport } from './routes/incidents.index'
 import { Route as NodesNodeIdRouteImport } from './routes/nodes.$nodeId'
 import { Route as IncidentsIncidentIdRouteImport } from './routes/incidents.$incidentId'
 
+const VulnerabilitiesRoute = VulnerabilitiesRouteImport.update({
+  id: '/vulnerabilities',
+  path: '/vulnerabilities',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -92,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/policies': typeof PoliciesRoute
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
+  '/vulnerabilities': typeof VulnerabilitiesRoute
   '/incidents/$incidentId': typeof IncidentsIncidentIdRoute
   '/nodes/$nodeId': typeof NodesNodeIdRoute
   '/incidents/': typeof IncidentsIndexRoute
@@ -104,6 +111,7 @@ export interface FileRoutesByTo {
   '/policies': typeof PoliciesRoute
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
+  '/vulnerabilities': typeof VulnerabilitiesRoute
   '/incidents/$incidentId': typeof IncidentsIncidentIdRoute
   '/nodes/$nodeId': typeof NodesNodeIdRoute
   '/incidents': typeof IncidentsIndexRoute
@@ -119,6 +127,7 @@ export interface FileRoutesById {
   '/policies': typeof PoliciesRoute
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
+  '/vulnerabilities': typeof VulnerabilitiesRoute
   '/incidents/$incidentId': typeof IncidentsIncidentIdRoute
   '/nodes/$nodeId': typeof NodesNodeIdRoute
   '/incidents/': typeof IncidentsIndexRoute
@@ -135,6 +144,7 @@ export interface FileRouteTypes {
     | '/policies'
     | '/reports'
     | '/settings'
+    | '/vulnerabilities'
     | '/incidents/$incidentId'
     | '/nodes/$nodeId'
     | '/incidents/'
@@ -147,6 +157,7 @@ export interface FileRouteTypes {
     | '/policies'
     | '/reports'
     | '/settings'
+    | '/vulnerabilities'
     | '/incidents/$incidentId'
     | '/nodes/$nodeId'
     | '/incidents'
@@ -161,6 +172,7 @@ export interface FileRouteTypes {
     | '/policies'
     | '/reports'
     | '/settings'
+    | '/vulnerabilities'
     | '/incidents/$incidentId'
     | '/nodes/$nodeId'
     | '/incidents/'
@@ -176,10 +188,18 @@ export interface RootRouteChildren {
   PoliciesRoute: typeof PoliciesRoute
   ReportsRoute: typeof ReportsRoute
   SettingsRoute: typeof SettingsRoute
+  VulnerabilitiesRoute: typeof VulnerabilitiesRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/vulnerabilities': {
+      id: '/vulnerabilities'
+      path: '/vulnerabilities'
+      fullPath: '/vulnerabilities'
+      preLoaderRoute: typeof VulnerabilitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -302,6 +322,7 @@ const rootRouteChildren: RootRouteChildren = {
   PoliciesRoute: PoliciesRoute,
   ReportsRoute: ReportsRoute,
   SettingsRoute: SettingsRoute,
+  VulnerabilitiesRoute: VulnerabilitiesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -144,6 +144,8 @@ See [Deployment](deployment.md).
 - [x] Vulnerability: OSV CVE matching, cached per package@version, background enrichment
 - [x] Endpoints: /api/vulnerabilities, /api/nodes/{id}/vulnerabilities, /api/fim, /api/nodes/{id}/fim
 - [x] Node detail UI: File Integrity + Patch & Vulnerabilities sections
+- [x] Dedicated Vulnerabilities page (fleet CVEs, FIM changes, security updates)
+- [x] Security summary: fleet-wide fim_changes / vulnerable_packages / security_updates_pending
 - [ ] FIM realtime (fanotify) — enterprise tier
 
 ---
