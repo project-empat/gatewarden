@@ -18,6 +18,8 @@ import {
   Globe,
   Activity,
   Users,
+  FileWarning,
+  Bug,
   Fingerprint,
   Ban,
   ShieldOff,
@@ -64,6 +66,21 @@ interface AgentReport {
   cloudflare_tunnel?: CloudflareStatus
   auth_log?: AuthLogStatus
   system?: SystemHealth
+  fim?: { mode: string; files?: Array<{ path: string; hash: string }> }
+  packages?: { installed?: Array<{ name: string; version: string }>; security_updates_pending: number }
+}
+
+interface VulnerablePackage {
+  name: string
+  version: string
+  cve_count: number
+  top_cve?: string
+  summary?: string
+}
+
+interface FIMFile {
+  path: string
+  changed_at?: string
 }
 
 interface ListeningPort {
@@ -260,6 +277,16 @@ export function NodeDetailPage() {
       api.get('api/incidents').json().then((all) =>
         (all as Incident[]).filter((i) => i.node_id === nodeId)
       ),
+  })
+
+  const { data: vulnerabilities } = useQuery<VulnerablePackage[]>({
+    queryKey: ['node-vulns', nodeId],
+    queryFn: () => api.get(`api/nodes/${nodeId}/vulnerabilities`).json(),
+  })
+
+  const { data: fimChanges } = useQuery<FIMFile[]>({
+    queryKey: ['node-fim', nodeId],
+    queryFn: () => api.get(`api/nodes/${nodeId}/fim`).json(),
   })
 
   if (nodeLoading) {
@@ -719,6 +746,82 @@ export function NodeDetailPage() {
           </div>
         </Section>
       )}
+
+      {/* File Integrity */}
+      <Section title="File Integrity" icon={FileWarning}>
+        {!report?.fim && (!fimChanges || fimChanges.length === 0) ? (
+          <div className="text-center py-4 text-sm text-base-content/50">
+            No monitored-file changes detected.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-base-200/50 rounded-lg p-3 text-center">
+                <p className="text-2xl font-bold">{report?.fim?.files?.length ?? 0}</p>
+                <p className="text-xs text-base-content/40">Monitored Files</p>
+              </div>
+              <div className={`bg-base-200/50 rounded-lg p-3 text-center ${(fimChanges?.length ?? 0) > 0 ? 'ring-1 ring-warning' : ''}`}>
+                <p className={`text-2xl font-bold ${(fimChanges?.length ?? 0) > 0 ? 'text-warning' : ''}`}>
+                  {fimChanges?.length ?? 0}
+                </p>
+                <p className="text-xs text-base-content/40">Changed</p>
+              </div>
+            </div>
+            {(fimChanges ?? []).length > 0 && (
+              <div>
+                <p className="text-xs text-base-content/40 mb-1">Changed files</p>
+                <div className="space-y-1">
+                  {fimChanges!.map((f) => (
+                    <div key={f.path} className="flex items-center justify-between text-xs py-1">
+                      <span className="font-mono truncate">{f.path}</span>
+                      <span className="text-warning shrink-0 ml-2">
+                        {f.changed_at ? new Date(f.changed_at).toLocaleString() : 'changed'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </Section>
+
+      {/* Patch Status / Vulnerabilities */}
+      <Section title="Patch & Vulnerabilities" icon={Bug}>
+        {(!report?.packages && (!vulnerabilities || vulnerabilities.length === 0)) ? (
+          <div className="text-center py-4 text-sm text-base-content/50">
+            No package or vulnerability data available yet.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-base-200/50 rounded-lg p-3 text-center">
+                <p className="text-2xl font-bold">{report?.packages?.installed?.length ?? 0}</p>
+                <p className="text-xs text-base-content/40">Packages</p>
+              </div>
+              <div className={`bg-base-200/50 rounded-lg p-3 text-center ${(report?.packages?.security_updates_pending ?? 0) > 0 ? 'ring-1 ring-warning' : ''}`}>
+                <p className={`text-2xl font-bold ${(report?.packages?.security_updates_pending ?? 0) > 0 ? 'text-warning' : ''}`}>
+                  {report?.packages?.security_updates_pending ?? 0}
+                </p>
+                <p className="text-xs text-base-content/40">Security Updates Pending</p>
+              </div>
+            </div>
+            {(vulnerabilities ?? []).length > 0 && (
+              <div>
+                <p className="text-xs text-base-content/40 mb-1">Known CVEs</p>
+                <div className="space-y-1">
+                  {vulnerabilities!.map((v) => (
+                    <div key={`${v.name}@${v.version}`} className="flex items-center justify-between text-xs py-1">
+                      <span className="font-mono truncate">{v.name} {v.version}</span>
+                      <span className="badge badge-error badge-xs shrink-0 ml-2">{v.cve_count} CVE</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </Section>
 
       {/* Incidents */}
       <Section title="Incidents" icon={AlertTriangle}>

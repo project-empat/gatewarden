@@ -1,5 +1,6 @@
 # Binaries
 bin/
+/api
 agent/agent
 apps/api/api
 *.exe

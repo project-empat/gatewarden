@@ -14,18 +14,20 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/gatewarden/agent/pkg/proto"
 	"github.com/gatewarden/api/internal/model"
 )
 
 // AgentService handles agent registration, report ingestion, and heartbeats.
 type AgentService struct {
-	db  *pgxpool.Pool
-	log *zap.SugaredLogger
-	ev  *EventService
+	db   *pgxpool.Pool
+	log  *zap.SugaredLogger
+	ev   *EventService
+	vuln *VulnerabilityService
 }
 
-func NewAgentService(db *pgxpool.Pool, log *zap.SugaredLogger, ev *EventService) *AgentService {
-	return &AgentService{db: db, log: log, ev: ev}
+func NewAgentService(db *pgxpool.Pool, log *zap.SugaredLogger, ev *EventService, vuln *VulnerabilityService) *AgentService {
+	return &AgentService{db: db, log: log, ev: ev, vuln: vuln}
 }
 
 // Register creates a node + agent record and returns credentials.
@@ -220,6 +222,12 @@ func (s *AgentService) analyzeReport(ctx context.Context, nodeID string, report 
 		return
 	}
 
+	// Decode structured fields for FIM + package ingestion.
+	var typed proto.AgentReport
+	_ = json.Unmarshal(report, &typed)
+	s.ingestPackages(ctx, nodeID, typed.Packages)
+	s.ingestFIM(ctx, nodeID, typed.FIM)
+
 	// Check SSH exposure
 	if ssh, ok := parsed["ssh"].(map[string]interface{}); ok {
 		if exposed, _ := ssh["publicly_exposed"].(bool); exposed {
@@ -260,6 +268,111 @@ func (s *AgentService) analyzeReport(ctx context.Context, nodeID string, report 
 		Type:    "agent_report",
 		Payload: string(eventPayload),
 	})
+}
+
+// ingestPackages stores the node's installed packages and pending security
+// update count, then triggers a bounded OSV enrichment pass in the background.
+func (s *AgentService) ingestPackages(ctx context.Context, nodeID string, pkgs *proto.PackageStatus) {
+	if pkgs == nil {
+		return
+	}
+
+	// Update node-level security-updates-pending signal.
+	_, err := s.db.Exec(ctx,
+		`UPDATE nodes SET security_updates_pending = $2, updated_at = NOW() WHERE id = $1`,
+		nodeID, pkgs.SecurityUpdatesPending)
+	if err != nil {
+		s.log.Warnw("update security updates count", "error", err)
+	}
+
+	if len(pkgs.Installed) == 0 {
+		return
+	}
+
+	// Replace the package inventory in one transaction.
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		s.log.Warnw("begin package tx", "error", err)
+		return
+	}
+	defer tx.Rollback(ctx)
+
+	if _, err := tx.Exec(ctx, `DELETE FROM node_packages WHERE node_id = $1`, nodeID); err != nil {
+		s.log.Warnw("clear packages", "error", err)
+		return
+	}
+
+	for _, p := range pkgs.Installed {
+		if _, err := tx.Exec(ctx,
+			`INSERT INTO node_packages (node_id, name, version, ecosystem) VALUES ($1, $2, $3, 'deb')
+			 ON CONFLICT (node_id, name, version) DO NOTHING`,
+			nodeID, p.Name, p.Version); err != nil {
+			s.log.Debugw("insert package", "pkg", p.Name, "error", err)
+		}
+	}
+	if err := tx.Commit(ctx); err != nil {
+		s.log.Warnw("commit package tx", "error", err)
+		return
+	}
+
+	// Best-effort background enrichment (bounded by the vuln service).
+	if s.vuln != nil {
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
+			defer cancel()
+			if err := s.vuln.Enrich(ctx, nodeID); err != nil {
+				s.log.Debugw("vuln enrichment", "node", nodeID, "error", err)
+			}
+		}()
+	}
+}
+
+// ingestFIM diffs the reported file hashes against the node's baseline and
+// raises an incident whenever a monitored critical file is added or changed.
+func (s *AgentService) ingestFIM(ctx context.Context, nodeID string, fim *proto.FIMStatus) {
+	if fim == nil || len(fim.Files) == 0 {
+		return
+	}
+
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		s.log.Warnw("begin fim tx", "error", err)
+		return
+	}
+	defer tx.Rollback(ctx)
+
+	for _, f := range fim.Files {
+		var existingHash string
+		err := tx.QueryRow(ctx,
+			`SELECT hash FROM node_fim_files WHERE node_id = $1 AND path = $2`,
+			nodeID, f.Path).Scan(&existingHash)
+		if err != nil {
+			// New monitored file -> record baseline, no alert.
+			if _, err := tx.Exec(ctx,
+				`INSERT INTO node_fim_files (node_id, path, hash) VALUES ($1, $2, $3)
+				 ON CONFLICT (node_id, path) DO UPDATE SET hash = EXCLUDED.hash`,
+				nodeID, f.Path, f.Hash); err != nil {
+				s.log.Debugw("insert fim file", "path", f.Path, "error", err)
+			}
+			continue
+		}
+
+		if existingHash != f.Hash {
+			if _, err := tx.Exec(ctx,
+				`UPDATE node_fim_files SET hash = $3, last_changed = NOW()
+				 WHERE node_id = $1 AND path = $2`,
+				nodeID, f.Path, f.Hash); err != nil {
+				s.log.Debugw("update fim file", "path", f.Path, "error", err)
+				continue
+			}
+			s.maybeCreateIncident(ctx, nodeID, "fim_file_modified", "high",
+				fmt.Sprintf("Critical file modified: %s", f.Path))
+		}
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		s.log.Warnw("commit fim tx", "error", err)
+	}
 }
 
 func (s *AgentService) maybeCreateIncident(ctx context.Context, nodeID, eventType, severity, message string) {

@@ -44,6 +44,7 @@ func NewRouter(svc *service.Service, log *zap.SugaredLogger, cfg *config.Config,
 	licenseHandler := NewLicenseHandler(svc.License, svc.Audit)
 	userHandler := NewUserHandler(svc.User, svc.Audit)
 	auditHandler := NewAuditHandler(svc.Audit)
+	vulnHandler := NewVulnHandler(svc.Vuln)
 
 	r.Route("/api", func(r chi.Router) {
 		// Agent endpoints (API key auth for report/heartbeat)
@@ -84,6 +85,12 @@ func NewRouter(svc *service.Service, log *zap.SugaredLogger, cfg *config.Config,
 
 			// Audit trail
 			r.Get("/audit", auditHandler.List)
+
+			// File integrity + vulnerabilities
+			r.Get("/vulnerabilities", vulnHandler.List)
+			r.Get("/nodes/{id}/vulnerabilities", vulnHandler.NodeList)
+			r.Get("/fim", vulnHandler.FIM)
+			r.Get("/nodes/{id}/fim", vulnHandler.NodeFIM)
 
 			// Cloudflare Integration
 			r.Get("/cloudflare/accounts", cloudflareHandler.Accounts)

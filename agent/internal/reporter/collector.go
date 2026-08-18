@@ -11,8 +11,10 @@ import (
 	"github.com/gatewarden/agent/internal/crowdsec"
 	"github.com/gatewarden/agent/internal/docker"
 	"github.com/gatewarden/agent/internal/fail2ban"
+	"github.com/gatewarden/agent/internal/fim"
 	"github.com/gatewarden/agent/internal/firewall"
 	"github.com/gatewarden/agent/internal/journald"
+	"github.com/gatewarden/agent/internal/packages"
 	"github.com/gatewarden/agent/internal/ports"
 	"github.com/gatewarden/agent/internal/ssh"
 	"github.com/gatewarden/agent/internal/system"
@@ -39,6 +41,8 @@ func Collect(hostname string) *proto.AgentReport {
 	report.SSH = collectSSH()
 	report.System = collectSystem()
 	report.AuthLog = collectAuthLog()
+	report.FIM = collectFIM()
+	report.Packages = collectPackages()
 
 	// Integration checks
 	report.CrowdSec = collectCrowdSec()
@@ -99,6 +103,24 @@ func collectAuthLog() *proto.AuthLogStatus {
 		return nil
 	}
 	return a
+}
+
+func collectFIM() *proto.FIMStatus {
+	f, err := fim.Check()
+	if err != nil {
+		log.Printf("fim: %v", err)
+		return nil
+	}
+	return f
+}
+
+func collectPackages() *proto.PackageStatus {
+	p, err := packages.Check()
+	if err != nil {
+		log.Printf("packages: %v", err)
+		return nil
+	}
+	return p
 }
 
 func collectCrowdSec() *proto.CrowdSecStatus {

@@ -18,15 +18,17 @@ type Service struct {
 	License  *LicenseService
 	Audit    *AuditService
 	User     *UserService
+	Vuln     *VulnerabilityService
 }
 
 func New(db *pgxpool.Pool, log *zap.SugaredLogger, jwtSecret string) *Service {
 	ev := NewEventService(db, log)
+	vuln := NewVulnerabilityService(db, log)
 	return &Service{
 		Auth:     NewAuthService(db, jwtSecret),
 		Node:     NewNodeService(db),
 		Event:    ev,
-		Agent:    NewAgentService(db, log, ev),
+		Agent:    NewAgentService(db, log, ev, vuln),
 		Policy:   NewPolicyService(db),
 		Settings: NewSettingsService(db),
 		Action:   NewActionService(db, log),
@@ -35,5 +37,6 @@ func New(db *pgxpool.Pool, log *zap.SugaredLogger, jwtSecret string) *Service {
 		License:  NewLicenseService(db, log),
 		Audit:    NewAuditService(db, log),
 		User:     NewUserService(db),
+		Vuln:     vuln,
 	}
 }

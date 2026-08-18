@@ -136,6 +136,16 @@ See [Deployment](deployment.md).
 - [x] Retry with backoff
 - [x] Agent ID persistence (registration)
 
+### File Integrity & Vulnerability (lightweight, not a SIEM)
+
+- [x] FIM: periodic hashing of critical files (sshd, passwd, shadow, cron, systemd, ufw)
+- [x] FIM: per-node baseline, change detection -> incidents (agent + API)
+- [x] Packages: dpkg inventory + pending security-updates count (apt-check)
+- [x] Vulnerability: OSV CVE matching, cached per package@version, background enrichment
+- [x] Endpoints: /api/vulnerabilities, /api/nodes/{id}/vulnerabilities, /api/fim, /api/nodes/{id}/fim
+- [x] Node detail UI: File Integrity + Patch & Vulnerabilities sections
+- [ ] FIM realtime (fanotify) — enterprise tier
+
 ---
 
 ## Phase 2: Secure Connectivity
